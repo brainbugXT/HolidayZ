@@ -6,7 +6,8 @@ import {
   deleteDoc, 
   getDocs, 
   onSnapshot,
-  query
+  query,
+  where
 } from 'firebase/firestore';
 import type { QuerySnapshot, DocumentData } from 'firebase/firestore';
 import { db } from './config';
@@ -119,9 +120,25 @@ export const goalsService = {
     }
   },
 
-  // Delete a goal
+  // Delete a goal and all associated entries
   async delete(id: string): Promise<void> {
     try {
+      // First, delete all entries associated with this goal
+      const entriesQuery = query(
+        collection(db, ENTRIES_COLLECTION),
+        where('goalId', '==', id)
+      );
+      const entriesSnapshot = await getDocs(entriesQuery);
+      
+      // Delete all associated entries
+      const deletePromises = entriesSnapshot.docs.map(doc => 
+        deleteDoc(doc.ref)
+      );
+      await Promise.all(deletePromises);
+      
+      console.log(`✅ Deleted ${entriesSnapshot.size} entries associated with goal ${id}`);
+      
+      // Then delete the goal itself
       await deleteDoc(doc(db, GOALS_COLLECTION, id));
     } catch (error) {
       console.error('Error deleting goal:', error);
