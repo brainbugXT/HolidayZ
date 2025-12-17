@@ -1,0 +1,32 @@
+# This file specifies files to not be uploaded to Google App Engine.
+# See https://cloud.google.com/sdk/gcloud/reference/topic/gcloudignore for more details.
+
+.gcloudignore
+.git
+.gitignore
+
+# Node.js dependencies
+node_modules/
+
+# Build artifacts that are not needed for deployment
+dist-ssr/
+*.local
+
+# Documentation and local configuration
+README.md
+COST_OPTIMIZATION.md
+DEPLOYMENT_SETUP.md
+*.log
+.vscode/
+
+# Scripts
+scripts/
+
+# Local development files
+.env
+.env.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/coverage
+.DS_Store

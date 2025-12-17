@@ -56,18 +56,3 @@ handlers:
   secure: always
   http_headers:
     Cache-Control: "no-cache, no-store, must-revalidate"
-
-# Files to skip during deployment to reduce bundle size
-skip_files:
-- ^(.*/)?\..*$
-- ^(.*/)?.*\.yaml$
-- ^(.*/)?.*\.yml$
-- ^(.*/)?README\..*$
-- ^(.*/)?node_modules$
-- ^(.*/)?src$
-- ^(.*/)?public$
-- ^(.*/)?scripts$
-- ^(.*/)?\.git.*$
-- ^(.*/)?\.vscode$
-- ^(.*/)?package-lock\.json$
-- ^(.*/)?.*\.md$
