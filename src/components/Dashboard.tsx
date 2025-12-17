@@ -11,6 +11,7 @@ import {
   AccountBalance as CurrencyDollarIcon,
   TrendingUp as ArrowTrendingUpIcon,
   People as UsersIcon,
+  EmojiEvents as TrophyIcon,
 } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import type { SavingsGoalWithProgress } from '../types';
@@ -262,33 +263,45 @@ export default function Dashboard() {
                             gap: 1,
                           }}
                         >
-                          {goal.userContributions.map((contrib) => {
-                            const isCurrentUser = contrib.userId === state.currentUser?.id;
-                            return (
-                              <Chip
-                                key={contrib.userId}
-                                label={
-                                  <Box sx={{ textAlign: 'center' }}>
-                                    <Typography variant="caption" display="block">
-                                      {contrib.userName}
-                                    </Typography>
-                                    <Typography variant="body2" fontWeight="500">
-                                      ${contrib.total.toFixed(2)}
-                                    </Typography>
-                                  </Box>
-                                }
-                                sx={{ 
-                                  height: 'auto', 
-                                  py: 1,
-                                  bgcolor: isCurrentUser ? 'primary.main' : 'default',
-                                  color: isCurrentUser ? 'primary.contrastText' : 'text.primary',
-                                  '& .MuiTypography-root': {
-                                    color: isCurrentUser ? 'inherit' : 'inherit'
+                          {(() => {
+                            // Find the highest contribution amount
+                            const maxContribution = Math.max(...goal.userContributions.map(c => c.total));
+                            
+                            return goal.userContributions.map((contrib) => {
+                              const isCurrentUser = contrib.userId === state.currentUser?.id;
+                              const isTopContributor = contrib.total === maxContribution && contrib.total > 0;
+                              
+                              return (
+                                <Chip
+                                  key={contrib.userId}
+                                  icon={isTopContributor ? <TrophyIcon sx={{ fontSize: 18 }} /> : undefined}
+                                  label={
+                                    <Box sx={{ textAlign: 'center' }}>
+                                      <Typography variant="caption" display="block">
+                                        {contrib.userName}
+                                      </Typography>
+                                      <Typography variant="body2" fontWeight="500">
+                                        ${contrib.total.toFixed(2)}
+                                      </Typography>
+                                    </Box>
                                   }
-                                }}
-                              />
-                            );
-                          })}
+                                  sx={{ 
+                                    height: 'auto', 
+                                    py: 1,
+                                    bgcolor: isCurrentUser ? 'primary.main' : 'default',
+                                    color: isCurrentUser ? 'primary.contrastText' : 'text.primary',
+                                    '& .MuiTypography-root': {
+                                      color: isCurrentUser ? 'inherit' : 'inherit'
+                                    },
+                                    '& .MuiChip-icon': {
+                                      color: isCurrentUser ? 'primary.contrastText' : '#FFD700',
+                                      ml: 1
+                                    }
+                                  }}
+                                />
+                              );
+                            });
+                          })()}
                         </Box>
                       </Box>
                     )}
