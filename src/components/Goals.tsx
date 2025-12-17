@@ -137,6 +137,39 @@ export default function Goals() {
     };
   };
 
+  const calculateDaysLeft = (deadline: string | undefined) => {
+    if (!deadline) return null;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const targetDate = new Date(deadline);
+    targetDate.setHours(0, 0, 0, 0);
+    
+    const diffTime = targetDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  };
+
+  const getDaysLeftDisplay = (daysLeft: number | null) => {
+    if (daysLeft === null) return null;
+    
+    if (daysLeft < 0) {
+      return { text: `${Math.abs(daysLeft)} days overdue`, color: 'error.main' };
+    } else if (daysLeft === 0) {
+      return { text: 'Due today!', color: 'warning.main' };
+    } else if (daysLeft === 1) {
+      return { text: '1 day left', color: 'warning.main' };
+    } else if (daysLeft <= 7) {
+      return { text: `${daysLeft} days left`, color: 'warning.main' };
+    } else if (daysLeft <= 30) {
+      return { text: `${daysLeft} days left`, color: 'info.main' };
+    } else {
+      return { text: `${daysLeft} days left`, color: 'text.secondary' };
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -249,14 +282,38 @@ export default function Goals() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {state.goals.map((goal) => {
                 const { totalSaved, progress } = calculateGoalProgress(goal.id, goal.targetAmount);
+                const daysLeft = calculateDaysLeft(goal.deadline);
+                const daysLeftDisplay = getDaysLeftDisplay(daysLeft);
+                
                 return (
                   <Card key={goal.id} variant="outlined">
                     <CardContent>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <Box sx={{ flexGrow: 1 }}>
-                          <Typography variant="h6" component="h3" gutterBottom>
-                            {goal.name}
-                          </Typography>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                            <Typography variant="h6" component="h3">
+                              {goal.name}
+                            </Typography>
+                            {daysLeftDisplay && (
+                              <Typography 
+                                variant="body2" 
+                                fontWeight="600"
+                                sx={{ 
+                                  color: daysLeftDisplay.color,
+                                  px: 1.5,
+                                  py: 0.5,
+                                  borderRadius: 1,
+                                  bgcolor: daysLeft !== null && daysLeft < 0 
+                                    ? 'error.lighter' 
+                                    : daysLeft !== null && daysLeft <= 7 
+                                    ? 'warning.lighter' 
+                                    : 'action.hover'
+                                }}
+                              >
+                                {daysLeftDisplay.text}
+                              </Typography>
+                            )}
+                          </Box>
                           {goal.description && (
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                               {goal.description}

@@ -18,6 +18,39 @@ import type { SavingsGoalWithProgress } from '../types';
 export default function Dashboard() {
   const { state } = useApp();
 
+  const calculateDaysLeft = (deadline: string | undefined) => {
+    if (!deadline) return null;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const targetDate = new Date(deadline);
+    targetDate.setHours(0, 0, 0, 0);
+    
+    const diffTime = targetDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  };
+
+  const getDaysLeftDisplay = (daysLeft: number | null) => {
+    if (daysLeft === null) return null;
+    
+    if (daysLeft < 0) {
+      return { text: `${Math.abs(daysLeft)} days overdue`, color: 'error.main' };
+    } else if (daysLeft === 0) {
+      return { text: 'Due today!', color: 'warning.main' };
+    } else if (daysLeft === 1) {
+      return { text: '1 day left', color: 'warning.main' };
+    } else if (daysLeft <= 7) {
+      return { text: `${daysLeft} days left`, color: 'warning.main' };
+    } else if (daysLeft <= 30) {
+      return { text: `${daysLeft} days left`, color: 'info.main' };
+    } else {
+      return { text: `${daysLeft} days left`, color: 'text.secondary' };
+    }
+  };
+
   // Calculate goals with progress
   const goalsWithProgress: SavingsGoalWithProgress[] = state.goals.map(goal => {
     const goalEntries = state.entries.filter(entry => entry.goalId === goal.id);
@@ -156,34 +189,55 @@ export default function Dashboard() {
             </Box>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {goalsWithProgress.map((goal) => (
-                <Card key={goal.id} variant="outlined">
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                      <Box>
-                        <Typography variant="h6" component="h3" gutterBottom>
-                          {goal.name}
-                        </Typography>
-                        {goal.description && (
-                          <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {goal.description}
+              {goalsWithProgress.map((goal) => {
+                const daysLeft = calculateDaysLeft(goal.deadline);
+                const daysLeftDisplay = getDaysLeftDisplay(daysLeft);
+                
+                return (
+                  <Card key={goal.id} variant="outlined">
+                    <CardContent>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Typography variant="h6" component="h3">
+                              {goal.name}
+                            </Typography>
+                            {daysLeftDisplay && (
+                              <Chip
+                                label={daysLeftDisplay.text}
+                                size="small"
+                                sx={{ 
+                                  bgcolor: daysLeft !== null && daysLeft < 0 
+                                    ? 'error.lighter' 
+                                    : daysLeft !== null && daysLeft <= 7 
+                                    ? 'warning.lighter' 
+                                    : 'action.hover',
+                                  color: daysLeftDisplay.color,
+                                  fontWeight: 600
+                                }}
+                              />
+                            )}
+                          </Box>
+                          {goal.description && (
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                              {goal.description}
+                            </Typography>
+                          )}
+                          {goal.deadline && (
+                            <Typography variant="body2" color="text.secondary">
+                              Deadline: {new Date(goal.deadline).toLocaleDateString()}
+                            </Typography>
+                          )}
+                        </Box>
+                        <Box sx={{ textAlign: 'right', ml: 2 }}>
+                          <Typography variant="h6" fontWeight="bold">
+                            ${goal.totalSaved.toFixed(2)} / ${goal.targetAmount.toFixed(2)}
                           </Typography>
-                        )}
-                        {goal.deadline && (
                           <Typography variant="body2" color="text.secondary">
-                            Deadline: {new Date(goal.deadline).toLocaleDateString()}
+                            {goal.progress.toFixed(1)}% complete
                           </Typography>
-                        )}
+                        </Box>
                       </Box>
-                      <Box sx={{ textAlign: 'right' }}>
-                        <Typography variant="h6" fontWeight="bold">
-                          ${goal.totalSaved.toFixed(2)} / ${goal.targetAmount.toFixed(2)}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {goal.progress.toFixed(1)}% complete
-                        </Typography>
-                      </Box>
-                    </Box>
 
                     {/* Progress Bar */}
                     <Box sx={{ mb: 2 }}>
@@ -231,7 +285,8 @@ export default function Dashboard() {
                     )}
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </Box>
           )}
         </CardContent>
