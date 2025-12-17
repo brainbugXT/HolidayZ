@@ -1,10 +1,22 @@
 import { useState } from 'react';
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { AppProvider, useApp } from './context/AppContext';
 import AuthPage from './components/AuthPage';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Goals from './components/Goals';
 import Savings from './components/Savings';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#2563eb',
+    },
+    secondary: {
+      main: '#16a34a',
+    },
+  },
+});
 
 function AppContent() {
   const { state } = useApp();
@@ -36,9 +48,12 @@ function AppContent() {
 
 function App() {
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ThemeProvider>
   );
 }
 

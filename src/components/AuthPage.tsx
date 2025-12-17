@@ -1,4 +1,16 @@
 import { useState } from 'react';
+import {
+  Box,
+  Card,
+  CardContent,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography,
+  Container,
+} from '@mui/material';
 import { useApp } from '../context/AppContext';
 
 export default function AuthPage() {
@@ -13,49 +25,60 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="mt-6 text-4xl font-bold text-gray-900">
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 2,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography variant="h3" component="h1" fontWeight="bold" gutterBottom>
             HolidayZ
-          </h2>
-          <p className="mt-2 text-lg text-gray-600">
+          </Typography>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
             Family Savings Tracker
-          </p>
-          <p className="mt-4 text-sm text-gray-500">
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
             Select your family member profile to continue
-          </p>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
-          <div>
-            <label htmlFor="user-select" className="block text-sm font-medium text-gray-700 mb-2">
-              Choose Family Member
-            </label>
-            <select
-              id="user-select"
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          </Typography>
+        </Box>
+
+        <Card elevation={3}>
+          <CardContent sx={{ p: 4 }}>
+            <FormControl fullWidth sx={{ mb: 3 }}>
+              <InputLabel id="user-select-label">Choose Family Member</InputLabel>
+              <Select
+                labelId="user-select-label"
+                id="user-select"
+                value={selectedUserId}
+                label="Choose Family Member"
+                onChange={(e) => setSelectedUserId(e.target.value)}
+              >
+                {state.users.map((user) => (
+                  <MenuItem key={user.id} value={user.id}>
+                    {user.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Button
+              onClick={handleLogin}
+              disabled={!selectedUserId}
+              variant="contained"
+              fullWidth
+              size="large"
             >
-              <option value="">Select a family member...</option>
-              {state.users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <button
-            onClick={handleLogin}
-            disabled={!selectedUserId}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-gray-300 disabled:cursor-not-allowed transition duration-200"
-          >
-            Continue to Dashboard
-          </button>
-        </div>
-      </div>
-    </div>
+              Continue to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </Container>
+    </Box>
   );
 }

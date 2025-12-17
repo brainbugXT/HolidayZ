@@ -1,6 +1,19 @@
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  LinearProgress,
+  Chip,
+} from '@mui/material';
+import {
+  BarChart as ChartBarIcon,
+  AccountBalance as CurrencyDollarIcon,
+  TrendingUp as ArrowTrendingUpIcon,
+  People as UsersIcon,
+} from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import type { SavingsGoalWithProgress } from '../types';
-import { ChartBarIcon, CurrencyDollarIcon, ArrowTrendingUpIcon, UsersIcon } from '@heroicons/react/24/outline';
 
 export default function Dashboard() {
   const { state } = useApp();
@@ -35,127 +48,194 @@ export default function Dashboard() {
   const overallProgress = totalTargetAllGoals > 0 ? (totalSavedAllGoals / totalTargetAllGoals) * 100 : 0;
 
   return (
-    <div className="space-y-6">
+    <Box>
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Family Savings Dashboard</h1>
-          <p className="text-gray-600 mt-1">Track your family's savings progress</p>
-        </div>
-      </div>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
+          Family Savings Dashboard
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Track your family's savings progress
+        </Typography>
+      </Box>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <ChartBarIcon className="h-8 w-8 text-primary-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Active Goals</p>
-              <p className="text-2xl font-bold text-gray-900">{state.goals.filter(g => g.isActive).length}</p>
-            </div>
-          </div>
-        </div>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(4, 1fr)',
+          },
+          gap: 3,
+          mb: 4,
+        }}
+      >
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <ChartBarIcon color="primary" sx={{ fontSize: 40, mr: 2 }} />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Active Goals
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  {state.goals.filter(g => g.isActive).length}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <ArrowTrendingUpIcon className="h-8 w-8 text-success-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Saved</p>
-              <p className="text-2xl font-bold text-gray-900">${totalSavedAllGoals.toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <ArrowTrendingUpIcon sx={{ fontSize: 40, mr: 2, color: 'success.main' }} />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Total Saved
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  ${totalSavedAllGoals.toFixed(2)}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <CurrencyDollarIcon className="h-8 w-8 text-orange-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Target</p>
-              <p className="text-2xl font-bold text-gray-900">${totalTargetAllGoals.toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <CurrencyDollarIcon sx={{ fontSize: 40, mr: 2, color: 'warning.main' }} />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Total Target
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  ${totalTargetAllGoals.toFixed(2)}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <UsersIcon className="h-8 w-8 text-purple-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Overall Progress</p>
-              <p className="text-2xl font-bold text-gray-900">{overallProgress.toFixed(1)}%</p>
-            </div>
-          </div>
-        </div>
-      </div>
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <UsersIcon sx={{ fontSize: 40, mr: 2, color: 'secondary.main' }} />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Overall Progress
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  {overallProgress.toFixed(1)}%
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
 
       {/* Goals Overview */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Savings Goals</h2>
-        </div>
-        
-        {goalsWithProgress.length === 0 ? (
-          <div className="p-8 text-center">
-            <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No savings goals</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by creating your first savings goal.</p>
-          </div>
-        ) : (
-          <div className="p-6 space-y-6">
-            {goalsWithProgress.map((goal) => (
-              <div key={goal.id} className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">{goal.name}</h3>
-                    {goal.description && (
-                      <p className="text-sm text-gray-600">{goal.description}</p>
-                    )}
-                    {goal.deadline && (
-                      <p className="text-sm text-gray-500">Deadline: {new Date(goal.deadline).toLocaleDateString()}</p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-gray-900">
-                      ${goal.totalSaved.toFixed(2)} / ${goal.targetAmount.toFixed(2)}
-                    </p>
-                    <p className="text-sm text-gray-600">{goal.progress.toFixed(1)}% complete</p>
-                  </div>
-                </div>
+      <Card>
+        <CardContent>
+          <Typography variant="h5" component="h2" fontWeight="600" sx={{ mb: 3 }}>
+            Savings Goals
+          </Typography>
+          
+          {goalsWithProgress.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 6 }}>
+              <ChartBarIcon sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
+              <Typography variant="body1" fontWeight="500" gutterBottom>
+                No savings goals
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Get started by creating your first savings goal.
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {goalsWithProgress.map((goal) => (
+                <Card key={goal.id} variant="outlined">
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                      <Box>
+                        <Typography variant="h6" component="h3" gutterBottom>
+                          {goal.name}
+                        </Typography>
+                        {goal.description && (
+                          <Typography variant="body2" color="text.secondary" gutterBottom>
+                            {goal.description}
+                          </Typography>
+                        )}
+                        {goal.deadline && (
+                          <Typography variant="body2" color="text.secondary">
+                            Deadline: {new Date(goal.deadline).toLocaleDateString()}
+                          </Typography>
+                        )}
+                      </Box>
+                      <Box sx={{ textAlign: 'right' }}>
+                        <Typography variant="h6" fontWeight="bold">
+                          ${goal.totalSaved.toFixed(2)} / ${goal.targetAmount.toFixed(2)}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {goal.progress.toFixed(1)}% complete
+                        </Typography>
+                      </Box>
+                    </Box>
 
-                {/* Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                  <div 
-                    className="bg-primary-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(goal.progress, 100)}%` }}
-                  ></div>
-                </div>
+                    {/* Progress Bar */}
+                    <Box sx={{ mb: 2 }}>
+                      <LinearProgress 
+                        variant="determinate" 
+                        value={Math.min(goal.progress, 100)}
+                        sx={{ height: 8, borderRadius: 4 }}
+                      />
+                    </Box>
 
-                {/* Family Contributions */}
-                {goal.userContributions.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Family Contributions:</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {goal.userContributions.map((contrib) => (
-                        <div key={contrib.userId} className="bg-gray-50 rounded p-2 text-center">
-                          <p className="text-xs text-gray-600">{contrib.userName}</p>
-                          <p className="text-sm font-medium text-gray-900">${contrib.total.toFixed(2)}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+                    {/* Family Contributions */}
+                    {goal.userContributions.length > 0 && (
+                      <Box>
+                        <Typography variant="body2" fontWeight="500" color="text.secondary" sx={{ mb: 1 }}>
+                          Family Contributions:
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: 'grid',
+                            gridTemplateColumns: {
+                              xs: 'repeat(2, 1fr)',
+                              md: 'repeat(4, 1fr)',
+                            },
+                            gap: 1,
+                          }}
+                        >
+                          {goal.userContributions.map((contrib) => (
+                            <Chip
+                              key={contrib.userId}
+                              label={
+                                <Box sx={{ textAlign: 'center' }}>
+                                  <Typography variant="caption" display="block">
+                                    {contrib.userName}
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight="500">
+                                    ${contrib.total.toFixed(2)}
+                                  </Typography>
+                                </Box>
+                              }
+                              sx={{ height: 'auto', py: 1 }}
+                            />
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+    </Box>
   );
 }

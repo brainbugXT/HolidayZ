@@ -1,6 +1,27 @@
 import { useState } from 'react';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  Divider,
+} from '@mui/material';
+import {
+  Add as PlusIcon,
+  Edit as PencilIcon,
+  Delete as TrashIcon,
+  AccountBalance as CurrencyDollarIcon,
+} from '@mui/icons-material';
 import { useApp, createEntry } from '../context/AppContext';
-import { PlusIcon, PencilIcon, TrashIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 
 export default function Savings() {
   const { state, dispatch } = useApp();
@@ -97,201 +118,205 @@ export default function Savings() {
   const totalSaved = userEntries.reduce((sum, entry) => sum + entry.amount, 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Savings</h1>
-          <p className="text-gray-600 mt-1">Track your personal contributions to family goals</p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <div className="text-right">
-            <p className="text-sm text-gray-500">Total Contributed</p>
-            <p className="text-2xl font-bold text-primary-600">${totalSaved.toFixed(2)}</p>
-          </div>
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
+            My Savings
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Track your personal contributions to family goals
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography variant="body2" color="text.secondary">
+              Total Contributed
+            </Typography>
+            <Typography variant="h5" color="primary" fontWeight="bold">
+              ${totalSaved.toFixed(2)}
+            </Typography>
+          </Box>
           {state.goals.length > 0 && (
-            <button
+            <Button
+              variant="contained"
+              startIcon={<PlusIcon />}
               onClick={() => setShowCreateForm(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              <PlusIcon className="h-4 w-4 mr-2" />
               Add Savings
-            </button>
+            </Button>
           )}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Create/Edit Form */}
-      {showCreateForm && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            {editingEntry ? 'Edit Savings Entry' : 'Add New Savings'}
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="goalId" className="block text-sm font-medium text-gray-700">
-                Savings Goal *
-              </label>
-              <select
-                id="goalId"
+      <Dialog open={showCreateForm} onClose={resetForm} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          {editingEntry ? 'Edit Savings Entry' : 'Add New Savings'}
+        </DialogTitle>
+        <form onSubmit={handleSubmit}>
+          <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                select
+                label="Savings Goal"
                 value={formData.goalId}
                 onChange={(e) => setFormData({ ...formData, goalId: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 required
+                fullWidth
               >
-                <option value="">Select a goal...</option>
                 {state.goals.filter(g => g.isActive).map((goal) => (
-                  <option key={goal.id} value={goal.id}>
+                  <MenuItem key={goal.id} value={goal.id}>
                     {goal.name}
-                  </option>
+                  </MenuItem>
                 ))}
-              </select>
-            </div>
+              </TextField>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                  Amount *
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">$</span>
-                  </div>
-                  <input
-                    type="number"
-                    id="amount"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="block w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-                </div>
-              </div>
+              <TextField
+                label="Amount"
+                type="number"
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                placeholder="0.00"
+                required
+                fullWidth
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                }}
+                inputProps={{
+                  min: 0,
+                  step: 0.01,
+                }}
+              />
 
-              <div>
-                <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-                  Date *
-                </label>
-                <input
-                  type="date"
-                  id="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                />
-              </div>
-            </div>
+              <TextField
+                label="Date"
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                required
+                fullWidth
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
 
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <input
-                type="text"
-                id="description"
+              <TextField
+                label="Description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Optional note about this savings..."
+                fullWidth
               />
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={resetForm}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-              >
-                {editingEntry ? 'Update Entry' : 'Add Savings'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={resetForm}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained">
+              {editingEntry ? 'Update Entry' : 'Add Savings'}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
 
       {/* No Goals Message */}
       {state.goals.length === 0 && (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <CurrencyDollarIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No savings goals yet</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Create a savings goal first, then you can start tracking your contributions.
-          </p>
-        </div>
+        <Card>
+          <CardContent sx={{ textAlign: 'center', py: 6 }}>
+            <CurrencyDollarIcon sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
+            <Typography variant="body1" fontWeight="500" gutterBottom>
+              No savings goals yet
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Create a savings goal first, then you can start tracking your contributions.
+            </Typography>
+          </CardContent>
+        </Card>
       )}
 
       {/* Entries by Goal */}
       {Object.keys(entriesByGoal).length > 0 ? (
-        <div className="space-y-6">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {Object.entries(entriesByGoal).map(([goalId, goalEntries]) => {
             const goalTotal = goalEntries.reduce((sum, entry) => sum + entry.amount, 0);
             return (
-              <div key={goalId} className="bg-white rounded-lg shadow">
-                <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                  <h2 className="text-xl font-semibold text-gray-900">{getGoalName(goalId)}</h2>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Your Total</p>
-                    <p className="text-lg font-bold text-primary-600">${goalTotal.toFixed(2)}</p>
-                  </div>
-                </div>
-                
-                <div className="divide-y divide-gray-200">
-                  {goalEntries
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                    .map((entry) => (
-                    <div key={entry.id} className="p-6 flex justify-between items-center">
-                      <div>
-                        <div className="flex items-center space-x-3">
-                          <span className="text-lg font-semibold text-gray-900">
-                            ${entry.amount.toFixed(2)}
-                          </span>
-                          <span className="text-sm text-gray-500">
-                            {new Date(entry.date).toLocaleDateString()}
-                          </span>
-                        </div>
-                        {entry.description && (
-                          <p className="text-sm text-gray-600 mt-1">{entry.description}</p>
-                        )}
-                      </div>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEdit(entry.id)}
-                          className="p-2 text-gray-400 hover:text-gray-600"
-                        >
-                          <PencilIcon className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(entry.id)}
-                          className="p-2 text-gray-400 hover:text-red-600"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <Card key={goalId}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6" component="h2" fontWeight="600">
+                      {getGoalName(goalId)}
+                    </Typography>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Your Total
+                      </Typography>
+                      <Typography variant="h6" color="primary" fontWeight="bold">
+                        ${goalTotal.toFixed(2)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  
+                  <Divider sx={{ my: 2 }} />
+                  
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {goalEntries
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                      .map((entry) => (
+                      <Box key={entry.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Typography variant="h6" fontWeight="600">
+                              ${entry.amount.toFixed(2)}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {new Date(entry.date).toLocaleDateString()}
+                            </Typography>
+                          </Box>
+                          {entry.description && (
+                            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                              {entry.description}
+                            </Typography>
+                          )}
+                        </Box>
+                        <Box sx={{ display: 'flex' }}>
+                          <IconButton
+                            onClick={() => handleEdit(entry.id)}
+                            size="small"
+                            color="default"
+                          >
+                            <PencilIcon />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => handleDelete(entry.id)}
+                            size="small"
+                            color="error"
+                          >
+                            <TrashIcon />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                </CardContent>
+              </Card>
             );
           })}
-        </div>
+        </Box>
       ) : state.goals.length > 0 && (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <CurrencyDollarIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No savings entries yet</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Start tracking your contributions by adding your first savings entry.
-          </p>
-        </div>
+        <Card>
+          <CardContent sx={{ textAlign: 'center', py: 6 }}>
+            <CurrencyDollarIcon sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
+            <Typography variant="body1" fontWeight="500" gutterBottom>
+              No savings entries yet
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Start tracking your contributions by adding your first savings entry.
+            </Typography>
+          </CardContent>
+        </Card>
       )}
-    </div>
+    </Box>
   );
 }
