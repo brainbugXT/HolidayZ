@@ -4,97 +4,81 @@ A beautiful React application for tracking family savings goals, designed for th
 
 ## 🎯 Features
 
-- **Family Authentication**: Simple family member selection system
-- **Savings Goals Management**: Create, edit, and delete savings goals with target amounts and deadlines
-- **Personal Savings Tracking**: Each family member can log their contributions
-- **Real-time Dashboard**: Overview of all goals with progress tracking and family contributions
-- **Responsive Design**: Works beautifully on desktop, tablet, and mobile devices
-- **Data Persistence**: All data is saved locally and persists between sessions
-- **Privacy**: Family members can only edit/delete their own savings entries
+- **Family Authentication**: Simple family member selection system.
+- **Savings Goals Management**: Create, edit, and delete savings goals with target amounts and deadlines.
+- **Personal Savings Tracking**: Each family member can log their contributions.
+- **Real-time Dashboard**: Overview of all goals with progress tracking and family contributions.
+- **Responsive Design**: Works beautifully on desktop, tablet, and mobile devices.
+- **Data Persistence**: All data is saved locally in the browser and persists between sessions.
+- **Privacy**: Family members can only edit or delete their own savings entries.
 
 ## 👥 Family Members
 
 The application is pre-configured for 4 family members:
 - Kenith De Beer (kenith.debeer@gmail.com)
 - Family Member 2
-- Family Member 3  
+- Family Member 3
 - Family Member 4
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+- Node.js (v18 or higher)
+- npm (or yarn/pnpm)
 
-### Installation
+### Installation & Local Development
 
-1. Clone the repository:
-\`\`\`bash
-git clone <your-repo-url>
-cd HolidayZ
-\`\`\`
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repo-url>
+    cd HolidayZ
+    ```
 
-2. Install dependencies:
-\`\`\`bash
-npm install
-\`\`\`
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-3. Start the development server:
-\`\`\`bash
-npm run dev
-\`\`\`
+3.  **Start the development server:**
+    ```bash
+    npm run dev
+    ```
+    The application will be available at `http://localhost:5173`.
 
-4. Open your browser and navigate to \`http://localhost:5173\`
+## ☁️ Automated Google Cloud Deployment
 
-## 🏗️ Building for Production
+This application is configured for a cost-optimized, automated deployment to **Google Cloud App Engine** using GitHub Actions.
 
-Build the application:
-\`\`\`bash
-npm run build
-\`\`\`
+**The deployment process is triggered automatically on every push to the `main` branch.**
 
-Preview the production build:
-\`\`\`bash
-npm run preview
-\`\`\`
+### How It Works
 
-## ☁️ Google Cloud Deployment
+1.  **Push to `main`**: When you push a commit, the GitHub Actions workflow starts.
+2.  **Build**: It builds the React application for production.
+3.  **Deploy**: It deploys the build to a new, temporary version on App Engine.
+4.  **Promote**: If the deployment is successful, it instantly promotes the new version to receive all traffic.
+5.  **Cleanup**: It stops the previous version to save costs, keeping older versions available for rollbacks.
 
-This application is configured for easy deployment to Google Cloud App Engine.
+You can monitor the deployment progress in the **"Actions"** tab of your GitHub repository.
 
-### Prerequisites for Deployment
+### Manual Deployment (Alternative)
 
-1. **Google Cloud Project**: Create a project at [Google Cloud Console](https://console.cloud.google.com/)
-2. **Enable App Engine**: Enable the App Engine Admin API
-3. **Service Account**: Create a service account with App Engine Admin permissions
-4. **GitHub Secrets**: Set up the following secrets in your GitHub repository:
-   - \`GCP_SA_KEY\`: Service account key JSON (base64 encoded)
-   - \`GCP_PROJECT_ID\`: Your Google Cloud project ID
+If you ever need to deploy manually:
 
-### Manual Deployment
-
-1. Install Google Cloud CLI
-2. Authenticate: \`gcloud auth login\`
-3. Set project: \`gcloud config set project YOUR_PROJECT_ID\`
-4. Build the app: \`npm run build\`
-5. Deploy: \`gcloud app deploy\`
-
-### Automated Deployment
-
-The application includes GitHub Actions workflow for automatic deployment:
-- Push to \`main\` or \`master\` branch triggers deployment
-- Builds the application
-- Deploys to Google Cloud App Engine
-- Promotes the new version and stops the previous one
+1.  **Install Google Cloud CLI**: [Follow the official instructions](https://cloud.google.com/sdk/docs/install).
+2.  **Authenticate**: `gcloud auth login`
+3.  **Set Project**: `gcloud config set project YOUR_PROJECT_ID`
+4.  **Build**: `npm run build`
+5.  **Deploy**: `gcloud app deploy`
 
 ## 🛠️ Technology Stack
 
-- **Frontend Framework**: React 19 with TypeScript
-- **Build Tool**: Vite (with Rolldown)
+- **Framework**: React 19 with TypeScript
+- **Build Tool**: Vite
 - **Styling**: Tailwind CSS
 - **Icons**: Heroicons
-- **State Management**: React Context API + useReducer
-- **Data Persistence**: Local Storage
+- **State Management**: React Context API with `useReducer`
+- **Data Persistence**: Browser Local Storage
 - **Deployment**: Google Cloud App Engine
 - **CI/CD**: GitHub Actions
 
@@ -127,9 +111,9 @@ The application includes GitHub Actions workflow for automatic deployment:
 This is a private family application, but if you'd like to suggest improvements:
 
 1. Fork the repository
-2. Create a feature branch: \`git checkout -b feature/amazing-feature\`
-3. Commit your changes: \`git commit -m 'Add amazing feature'\`
-4. Push to the branch: \`git push origin feature/amazing-feature\`
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
 ## 📄 License
@@ -143,56 +127,3 @@ Created with ❤️ for the De Beer family to help achieve their savings goals t
 ---
 
 **Happy Saving! 💰✨**
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
