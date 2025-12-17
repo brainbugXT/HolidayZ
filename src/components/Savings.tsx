@@ -49,6 +49,21 @@ export default function Savings() {
     setEditingEntry(null);
   };
 
+  const handleAddNewSavings = () => {
+    // Get the most recent goal (by creation date)
+    const latestGoal = state.goals
+      .filter(g => g.isActive)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    
+    setFormData({
+      goalId: latestGoal?.id || '',
+      amount: '',
+      description: '',
+      date: new Date().toISOString().split('T')[0]
+    });
+    setShowCreateForm(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.goalId || !formData.amount || !state.currentUser) return;
@@ -161,7 +176,7 @@ export default function Savings() {
             <Button
               variant="contained"
               startIcon={<PlusIcon />}
-              onClick={() => setShowCreateForm(true)}
+              onClick={handleAddNewSavings}
             >
               Add Savings
             </Button>
