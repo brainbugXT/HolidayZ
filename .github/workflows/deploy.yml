@@ -59,6 +59,17 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
+    - name: Verify Firebase Secrets (Debug)
+      run: |
+        echo "Checking if Firebase secrets are available (masked):"
+        echo "VITE_FIREBASE_API_KEY is set: $([[ -n "$VITE_FIREBASE_API_KEY" ]] && echo 'YES' || echo 'NO')"
+        echo "VITE_FIREBASE_PROJECT_ID is set: $([[ -n "$VITE_FIREBASE_PROJECT_ID" ]] && echo 'YES' || echo 'NO')"
+        echo "VITE_FIREBASE_APP_ID is set: $([[ -n "$VITE_FIREBASE_APP_ID" ]] && echo 'YES' || echo 'NO')"
+      env:
+        VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+        VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      
     - name: Build application
       run: npm run build
       env:

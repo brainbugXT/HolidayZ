@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard';
 import Goals from './components/Goals';
 import Savings from './components/Savings';
 import FirebaseSetupWizard from './components/FirebaseSetupWizard';
+import { envDebug } from './debug-env';
 
 // Declare build time constant
 declare const __BUILD_TIME__: string;
@@ -27,6 +28,7 @@ if (typeof __BUILD_TIME__ !== 'undefined') {
   console.log('%c🚀 HolidayZ Family Savings Tracker', 'color: #2563eb; font-size: 16px; font-weight: bold;');
   console.log('%c📦 Build Time:', 'color: #16a34a; font-weight: bold;', __BUILD_TIME__);
   console.log('%c💎 UI Framework:', 'color: #9333ea; font-weight: bold;', 'Material-UI (MUI) v7');
+  console.log('%c🔍 Firebase Config:', 'color: #f59e0b; font-weight: bold;', envDebug);
 }
 
 function AppContent() {
