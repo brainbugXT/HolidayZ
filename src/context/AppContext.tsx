@@ -18,6 +18,8 @@ type AppAction =
   | { type: 'ADD_ENTRY'; payload: SavingsEntry }
   | { type: 'UPDATE_ENTRY'; payload: SavingsEntry }
   | { type: 'DELETE_ENTRY'; payload: string }
+  | { type: 'LOAD_GOALS'; payload: SavingsGoal[] }
+  | { type: 'LOAD_ENTRIES'; payload: SavingsEntry[] }
   | { type: 'LOAD_DATA'; payload: AppState };
 
 const initialState: AppState = {
@@ -65,6 +67,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         entries: state.entries.filter(entry => entry.id !== action.payload)
       };
+    case 'LOAD_GOALS':
+      return { ...state, goals: action.payload };
+    case 'LOAD_ENTRIES':
+      return { ...state, entries: action.payload };
     case 'LOAD_DATA':
       // Preserve currentUser when loading data from Firestore
       return { ...action.payload, currentUser: state.currentUser };
@@ -109,7 +115,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     console.log('📡 Subscribing to goals from Firestore...');
     const unsubscribe = goalsService.subscribe((goals) => {
       console.log(`✅ Received ${goals.length} goals from Firestore`);
-      dispatch({ type: 'LOAD_DATA', payload: { ...state, goals } });
+      dispatch({ type: 'LOAD_GOALS', payload: goals });
     });
 
     return () => {
@@ -123,7 +129,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     console.log('📡 Subscribing to entries from Firestore...');
     const unsubscribe = entriesService.subscribe((entries) => {
       console.log(`✅ Received ${entries.length} entries from Firestore`);
-      dispatch({ type: 'LOAD_DATA', payload: { ...state, entries } });
+      dispatch({ type: 'LOAD_ENTRIES', payload: entries });
       setIsLoading(false);
     });
 
