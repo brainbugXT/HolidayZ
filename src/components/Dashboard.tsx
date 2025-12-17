@@ -248,63 +248,80 @@ export default function Dashboard() {
                     </Box>
 
                     {/* Family Contributions */}
-                    {goal.userContributions.length > 0 && (
-                      <Box>
-                        <Typography variant="body2" fontWeight="500" color="text.secondary" sx={{ mb: 1 }}>
-                          Family Contributions:
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: 'grid',
-                            gridTemplateColumns: {
-                              xs: 'repeat(2, 1fr)',
-                              md: 'repeat(4, 1fr)',
-                            },
-                            gap: 1,
-                          }}
-                        >
-                          {(() => {
-                            // Find the highest contribution amount
-                            const maxContribution = Math.max(...goal.userContributions.map(c => c.total));
+                    <Box>
+                      <Typography variant="body2" fontWeight="500" color="text.secondary" sx={{ mb: 1 }}>
+                        Family Contributions:
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'grid',
+                          gridTemplateColumns: {
+                            xs: 'repeat(2, 1fr)',
+                            md: 'repeat(4, 1fr)',
+                          },
+                          gap: 1,
+                        }}
+                      >
+                        {(() => {
+                          // Find the highest contribution amount (only among contributors)
+                          const maxContribution = goal.userContributions.length > 0 
+                            ? Math.max(...goal.userContributions.map(c => c.total))
+                            : 0;
+                          
+                          // Show all users, including those who haven't contributed
+                          return state.users.map((user) => {
+                            const contribution = goal.userContributions.find(c => c.userId === user.id);
+                            const total = contribution?.total || 0;
+                            const isCurrentUser = user.id === state.currentUser?.id;
+                            const isTopContributor = total === maxContribution && total > 0;
+                            const hasContributed = total > 0;
                             
-                            return goal.userContributions.map((contrib) => {
-                              const isCurrentUser = contrib.userId === state.currentUser?.id;
-                              const isTopContributor = contrib.total === maxContribution && contrib.total > 0;
-                              
-                              return (
-                                <Chip
-                                  key={contrib.userId}
-                                  icon={isTopContributor ? <TrophyIcon sx={{ fontSize: 18 }} /> : undefined}
-                                  label={
-                                    <Box sx={{ textAlign: 'center' }}>
-                                      <Typography variant="caption" display="block">
-                                        {contrib.userName}
-                                      </Typography>
-                                      <Typography variant="body2" fontWeight="500">
-                                        ${contrib.total.toFixed(2)}
-                                      </Typography>
-                                    </Box>
+                            return (
+                              <Chip
+                                key={user.id}
+                                icon={isTopContributor ? <TrophyIcon sx={{ fontSize: 18 }} /> : undefined}
+                                label={
+                                  <Box sx={{ textAlign: 'center' }}>
+                                    <Typography variant="caption" display="block">
+                                      {user.name}
+                                    </Typography>
+                                    <Typography 
+                                      variant="body2" 
+                                      fontWeight="500"
+                                      sx={{ 
+                                        fontStyle: hasContributed ? 'normal' : 'italic',
+                                        opacity: hasContributed ? 1 : 0.6
+                                      }}
+                                    >
+                                      {hasContributed ? `$${total.toFixed(2)}` : 'Not yet'}
+                                    </Typography>
+                                  </Box>
+                                }
+                                variant={hasContributed ? 'filled' : 'outlined'}
+                                sx={{ 
+                                  height: 'auto', 
+                                  py: 1,
+                                  bgcolor: hasContributed 
+                                    ? (isCurrentUser ? 'primary.main' : 'default')
+                                    : 'transparent',
+                                  color: hasContributed
+                                    ? (isCurrentUser ? 'primary.contrastText' : 'text.primary')
+                                    : 'text.secondary',
+                                  borderColor: !hasContributed ? 'divider' : undefined,
+                                  '& .MuiTypography-root': {
+                                    color: 'inherit'
+                                  },
+                                  '& .MuiChip-icon': {
+                                    color: isCurrentUser ? 'primary.contrastText' : '#FFD700',
+                                    ml: 1
                                   }
-                                  sx={{ 
-                                    height: 'auto', 
-                                    py: 1,
-                                    bgcolor: isCurrentUser ? 'primary.main' : 'default',
-                                    color: isCurrentUser ? 'primary.contrastText' : 'text.primary',
-                                    '& .MuiTypography-root': {
-                                      color: isCurrentUser ? 'inherit' : 'inherit'
-                                    },
-                                    '& .MuiChip-icon': {
-                                      color: isCurrentUser ? 'primary.contrastText' : '#FFD700',
-                                      ml: 1
-                                    }
-                                  }}
-                                />
-                              );
-                            });
-                          })()}
-                        </Box>
+                                }}
+                              />
+                            );
+                          });
+                        })()}
                       </Box>
-                    )}
+                    </Box>
                   </CardContent>
                 </Card>
                 );
