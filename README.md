@@ -1,4 +1,10 @@
-# HolidayZ - Family Savings Tracker
+# HolidayZ - F## 👥 Family Members
+
+The application is pre-configured for the De Beer family:
+- Kenith De Beer (kenith.debeer@gmail.com)
+- Lee de Beer (lee-anne.debeer@gmail.com)
+- Alissa-Lee de Beer (Lissydebeerx)
+- Triston de Beer (triston.debeer@gmail.com)avings Tracker
 
 A beautiful React application for tracking family savings goals, designed for the De Beer family.
 
@@ -16,7 +22,7 @@ A beautiful React application for tracking family savings goals, designed for th
 
 The application is pre-configured for the De Beer family:
 - Kenith De Beer (kenith.debeer@gmail.com)
-- Lee de Beer (lee.debeer@gmail.com)
+- Lee de Beer (lee-anne.debeer@gmail.com)
 - Alissa-Lee de Beer (alissalee.debeer@gmail.com)
 - Triston de Beer (triston.debeer@gmail.com)
 

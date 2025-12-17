@@ -23,8 +23,8 @@ const initialState: AppState = {
   currentUser: null,
   users: [
     { id: '1', name: 'Kenith De Beer', email: 'kenith.debeer@gmail.com' },
-    { id: '2', name: 'Lee de Beer', email: 'lee.debeer@gmail.com' },
-    { id: '3', name: 'Alissa-Lee de Beer', email: 'alissalee.debeer@gmail.com' },
+    { id: '2', name: 'Lee de Beer', email: 'leeanne.debeer@gmail.com' },
+    { id: '3', name: 'Alissa-Lee de Beer', email: 'Lissydebeerx@gmail.com' },
     { id: '4', name: 'Triston de Beer', email: 'triston.debeer@gmail.com' },
   ],
   goals: [],
