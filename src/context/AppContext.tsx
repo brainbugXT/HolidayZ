@@ -22,8 +22,21 @@ type AppAction =
   | { type: 'LOAD_ENTRIES'; payload: SavingsEntry[] }
   | { type: 'LOAD_DATA'; payload: AppState };
 
+// Load user from localStorage synchronously during initialization
+const getInitialUser = (): User | null => {
+  try {
+    const savedUser = localStorage.getItem('holidayz-current-user');
+    if (savedUser) {
+      return JSON.parse(savedUser);
+    }
+  } catch (error) {
+    console.error('Error loading saved user:', error);
+  }
+  return null;
+};
+
 const initialState: AppState = {
-  currentUser: null,
+  currentUser: getInitialUser(),
   users: [
     { id: '1', name: 'Kenith De Beer', email: 'kenith.debeer@gmail.com' },
     { id: '2', name: 'Lee de Beer', email: 'leeanne.debeer@gmail.com' },
@@ -87,19 +100,6 @@ const AppContext = createContext<{
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Load currentUser from localStorage (only user preference is stored locally)
-  useEffect(() => {
-    const savedUser = localStorage.getItem('holidayz-current-user');
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser);
-        dispatch({ type: 'SET_CURRENT_USER', payload: parsedUser });
-      } catch (error) {
-        console.error('Error loading saved user:', error);
-      }
-    }
-  }, []);
 
   // Save currentUser to localStorage whenever it changes
   useEffect(() => {
