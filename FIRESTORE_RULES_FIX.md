@@ -45,7 +45,7 @@ service cloud.firestore {
 
 ---
 
-## Complete Firebase Setup (Both Firestore + Storage)
+## Complete Firebase Firestore Setup
 
 ### Firestore Rules (Database):
 
@@ -65,22 +65,6 @@ service cloud.firestore {
     match /savings-entries/{entryId} {
       allow read: if true;
       allow write: if true;
-    }
-  }
-}
-```
-
-### Storage Rules (Images):
-
-```javascript
-rules_version = '2';
-
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /proof-images/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
     }
   }
 }
@@ -215,20 +199,16 @@ If collection names are different, update the rules to match!
 After updating rules:
 
 - [ ] Firestore rules published (not just saved)
-- [ ] Storage rules published
 - [ ] Hard refresh browser
 - [ ] Console shows no permission errors
 - [ ] Can view Dashboard
 - [ ] Can create goals
 - [ ] Can add savings entries
-- [ ] Can upload images
 - [ ] Can edit/delete entries
 
 ---
 
-## Both Rules at a Glance
-
-### Copy-Paste Ready Rules:
+## Firestore Rules - Copy-Paste Ready
 
 **Firestore (Database Rules tab):**
 ```javascript
@@ -240,20 +220,6 @@ service cloud.firestore {
     }
     match /savings-entries/{entryId} {
       allow read, write: if true;
-    }
-  }
-}
-```
-
-**Storage (Storage Rules tab):**
-```javascript
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /proof-images/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
     }
   }
 }

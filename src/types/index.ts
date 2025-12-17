@@ -22,7 +22,6 @@ export interface SavingsEntry {
   description?: string;
   date: string;
   createdAt: string;
-  proofImageUrl?: string;
 }
 
 export interface SavingsGoalWithProgress extends SavingsGoal {
