@@ -41,6 +41,13 @@ export default function Goals() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Only Kenith (user id '1') can create or edit goals
+    if (state.currentUser?.id !== '1') {
+      alert('Only Kenith can create or edit savings goals.');
+      return;
+    }
+
     if (!formData.name || !formData.targetAmount) return;
 
     try {
@@ -84,6 +91,12 @@ export default function Goals() {
   };
 
   const handleEdit = (goalId: string) => {
+    // Only Kenith (user id '1') can edit goals
+    if (state.currentUser?.id !== '1') {
+      alert('Only Kenith can edit savings goals.');
+      return;
+    }
+
     const goal = state.goals.find(g => g.id === goalId);
     if (goal) {
       setFormData({
@@ -98,6 +111,12 @@ export default function Goals() {
   };
 
   const handleDelete = async (goalId: string) => {
+    // Only Kenith (user id '1') can delete goals
+    if (state.currentUser?.id !== '1') {
+      alert('Only Kenith can delete savings goals.');
+      return;
+    }
+
     if (confirm('Are you sure you want to delete this goal? All associated savings entries will also be deleted.')) {
       try {
         await goalsService.delete(goalId);
@@ -126,16 +145,20 @@ export default function Goals() {
             Savings Goals
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Create and manage your family's savings goals
+            {state.currentUser?.id === '1' 
+              ? 'Create and manage your family\'s savings goals'
+              : 'View your family\'s savings goals'}
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<PlusIcon />}
-          onClick={() => setShowCreateForm(true)}
-        >
-          New Goal
-        </Button>
+        {state.currentUser?.id === '1' && (
+          <Button
+            variant="contained"
+            startIcon={<PlusIcon />}
+            onClick={() => setShowCreateForm(true)}
+          >
+            New Goal
+          </Button>
+        )}
       </Box>
 
       {/* Create/Edit Form */}
@@ -263,22 +286,24 @@ export default function Goals() {
                             </Typography>
                           )}
                         </Box>
-                        <Box sx={{ display: 'flex', ml: 2 }}>
-                          <IconButton
-                            onClick={() => handleEdit(goal.id)}
-                            size="small"
-                            color="default"
-                          >
-                            <PencilIcon />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => handleDelete(goal.id)}
-                            size="small"
-                            color="error"
-                          >
-                            <TrashIcon />
-                          </IconButton>
-                        </Box>
+                        {state.currentUser?.id === '1' && (
+                          <Box sx={{ display: 'flex', ml: 2 }}>
+                            <IconButton
+                              onClick={() => handleEdit(goal.id)}
+                              size="small"
+                              color="default"
+                            >
+                              <PencilIcon />
+                            </IconButton>
+                            <IconButton
+                              onClick={() => handleDelete(goal.id)}
+                              size="small"
+                              color="error"
+                            >
+                              <TrashIcon />
+                            </IconButton>
+                          </Box>
+                        )}
                       </Box>
                     </CardContent>
                   </Card>
