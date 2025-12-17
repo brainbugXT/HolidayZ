@@ -262,22 +262,33 @@ export default function Dashboard() {
                             gap: 1,
                           }}
                         >
-                          {goal.userContributions.map((contrib) => (
-                            <Chip
-                              key={contrib.userId}
-                              label={
-                                <Box sx={{ textAlign: 'center' }}>
-                                  <Typography variant="caption" display="block">
-                                    {contrib.userName}
-                                  </Typography>
-                                  <Typography variant="body2" fontWeight="500">
-                                    ${contrib.total.toFixed(2)}
-                                  </Typography>
-                                </Box>
-                              }
-                              sx={{ height: 'auto', py: 1 }}
-                            />
-                          ))}
+                          {goal.userContributions.map((contrib) => {
+                            const isCurrentUser = contrib.userId === state.currentUser?.id;
+                            return (
+                              <Chip
+                                key={contrib.userId}
+                                label={
+                                  <Box sx={{ textAlign: 'center' }}>
+                                    <Typography variant="caption" display="block">
+                                      {contrib.userName}
+                                    </Typography>
+                                    <Typography variant="body2" fontWeight="500">
+                                      ${contrib.total.toFixed(2)}
+                                    </Typography>
+                                  </Box>
+                                }
+                                sx={{ 
+                                  height: 'auto', 
+                                  py: 1,
+                                  bgcolor: isCurrentUser ? 'primary.main' : 'default',
+                                  color: isCurrentUser ? 'primary.contrastText' : 'text.primary',
+                                  '& .MuiTypography-root': {
+                                    color: isCurrentUser ? 'inherit' : 'inherit'
+                                  }
+                                }}
+                              />
+                            );
+                          })}
                         </Box>
                       </Box>
                     )}
