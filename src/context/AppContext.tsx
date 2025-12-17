@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import type { User, SavingsGoal, SavingsEntry } from '../types';
 import { v4 as uuidv4 } from 'uuid';
+import { goalsService, entriesService } from '../firebase/firestore';
 
 interface AppState {
   currentUser: User | null;
@@ -78,28 +79,75 @@ const AppContext = createContext<{
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load data from localStorage on mount
+  // Load currentUser from localStorage (only user preference is stored locally)
   useEffect(() => {
-    const savedData = localStorage.getItem('holidayz-data');
-    if (savedData) {
+    const savedUser = localStorage.getItem('holidayz-current-user');
+    if (savedUser) {
       try {
-        const parsedData = JSON.parse(savedData);
-        dispatch({ type: 'LOAD_DATA', payload: { ...initialState, ...parsedData } });
+        const parsedUser = JSON.parse(savedUser);
+        dispatch({ type: 'SET_CURRENT_USER', payload: parsedUser });
       } catch (error) {
-        console.error('Error loading saved data:', error);
+        console.error('Error loading saved user:', error);
       }
     }
   }, []);
 
-  // Save data to localStorage whenever state changes
+  // Save currentUser to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('holidayz-data', JSON.stringify({
-      goals: state.goals,
-      entries: state.entries,
-      currentUser: state.currentUser
-    }));
-  }, [state.goals, state.entries, state.currentUser]);
+    if (state.currentUser) {
+      localStorage.setItem('holidayz-current-user', JSON.stringify(state.currentUser));
+    } else {
+      localStorage.removeItem('holidayz-current-user');
+    }
+  }, [state.currentUser]);
+
+  // Subscribe to Firestore goals in real-time
+  useEffect(() => {
+    console.log('📡 Subscribing to goals from Firestore...');
+    const unsubscribe = goalsService.subscribe((goals) => {
+      console.log(`✅ Received ${goals.length} goals from Firestore`);
+      dispatch({ type: 'LOAD_DATA', payload: { ...state, goals } });
+    });
+
+    return () => {
+      console.log('🔌 Unsubscribing from goals');
+      unsubscribe();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Subscribe to Firestore entries in real-time
+  useEffect(() => {
+    console.log('📡 Subscribing to entries from Firestore...');
+    const unsubscribe = entriesService.subscribe((entries) => {
+      console.log(`✅ Received ${entries.length} entries from Firestore`);
+      dispatch({ type: 'LOAD_DATA', payload: { ...state, entries } });
+      setIsLoading(false);
+    });
+
+    return () => {
+      console.log('🔌 Unsubscribing from entries');
+      unsubscribe();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Show loading indicator while fetching initial data
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{ fontSize: '2rem' }}>📦</div>
+        <div>Loading family savings data...</div>
+      </div>
+    );
+  }
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

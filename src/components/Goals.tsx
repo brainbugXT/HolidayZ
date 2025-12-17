@@ -20,9 +20,10 @@ import {
   Delete as TrashIcon,
 } from '@mui/icons-material';
 import { useApp, createGoal } from '../context/AppContext';
+import { goalsService } from '../firebase/firestore';
 
 export default function Goals() {
-  const { state, dispatch } = useApp();
+  const { state } = useApp();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -38,35 +39,43 @@ export default function Goals() {
     setEditingGoal(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.targetAmount) return;
 
-    if (editingGoal) {
-      // Update existing goal
-      const goal = state.goals.find(g => g.id === editingGoal);
-      if (goal) {
-        const updatedGoal = {
-          ...goal,
-          name: formData.name,
-          description: formData.description || undefined,
-          targetAmount: parseFloat(formData.targetAmount),
-          deadline: formData.deadline || undefined
-        };
-        dispatch({ type: 'UPDATE_GOAL', payload: updatedGoal });
+    try {
+      if (editingGoal) {
+        // Update existing goal in Firestore
+        const goal = state.goals.find(g => g.id === editingGoal);
+        if (goal) {
+          const updatedGoal = {
+            ...goal,
+            name: formData.name,
+            description: formData.description || undefined,
+            targetAmount: parseFloat(formData.targetAmount),
+            deadline: formData.deadline || undefined
+          };
+          await goalsService.update(editingGoal, updatedGoal);
+          console.log('✅ Goal updated in Firestore');
+        }
+      } else {
+        // Create new goal in Firestore
+        const newGoal = createGoal(
+          formData.name,
+          parseFloat(formData.targetAmount),
+          formData.description || undefined,
+          formData.deadline || undefined
+        );
+        const { id, ...goalWithoutId } = newGoal;
+        await goalsService.add(goalWithoutId);
+        console.log('✅ Goal added to Firestore');
       }
-    } else {
-      // Create new goal
-      const newGoal = createGoal(
-        formData.name,
-        parseFloat(formData.targetAmount),
-        formData.description || undefined,
-        formData.deadline || undefined
-      );
-      dispatch({ type: 'ADD_GOAL', payload: newGoal });
+      
+      resetForm();
+    } catch (error) {
+      console.error('Error saving goal:', error);
+      alert('Failed to save goal. Please try again.');
     }
-    
-    resetForm();
   };
 
   const handleEdit = (goalId: string) => {
@@ -83,9 +92,15 @@ export default function Goals() {
     }
   };
 
-  const handleDelete = (goalId: string) => {
+  const handleDelete = async (goalId: string) => {
     if (confirm('Are you sure you want to delete this goal? All associated savings entries will also be deleted.')) {
-      dispatch({ type: 'DELETE_GOAL', payload: goalId });
+      try {
+        await goalsService.delete(goalId);
+        console.log('✅ Goal deleted from Firestore');
+      } catch (error) {
+        console.error('Error deleting goal:', error);
+        alert('Failed to delete goal. Please try again.');
+      }
     }
   };
 

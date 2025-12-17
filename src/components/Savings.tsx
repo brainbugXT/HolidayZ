@@ -22,9 +22,10 @@ import {
   AccountBalance as CurrencyDollarIcon,
 } from '@mui/icons-material';
 import { useApp, createEntry } from '../context/AppContext';
+import { entriesService } from '../firebase/firestore';
 
 export default function Savings() {
-  const { state, dispatch } = useApp();
+  const { state } = useApp();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -48,36 +49,44 @@ export default function Savings() {
     setEditingEntry(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.goalId || !formData.amount || !state.currentUser) return;
 
-    if (editingEntry) {
-      // Update existing entry
-      const entry = userEntries.find(e => e.id === editingEntry);
-      if (entry) {
-        const updatedEntry = {
-          ...entry,
-          goalId: formData.goalId,
-          amount: parseFloat(formData.amount),
-          description: formData.description || undefined,
-          date: formData.date
-        };
-        dispatch({ type: 'UPDATE_ENTRY', payload: updatedEntry });
+    try {
+      if (editingEntry) {
+        // Update existing entry in Firestore
+        const entry = userEntries.find(e => e.id === editingEntry);
+        if (entry) {
+          const updatedEntry = {
+            ...entry,
+            goalId: formData.goalId,
+            amount: parseFloat(formData.amount),
+            description: formData.description || undefined,
+            date: formData.date
+          };
+          await entriesService.update(editingEntry, updatedEntry);
+          console.log('✅ Entry updated in Firestore');
+        }
+      } else {
+        // Create new entry in Firestore
+        const newEntry = createEntry(
+          state.currentUser.id,
+          formData.goalId,
+          parseFloat(formData.amount),
+          formData.description || undefined,
+          formData.date
+        );
+        const { id, ...entryWithoutId } = newEntry;
+        await entriesService.add(entryWithoutId);
+        console.log('✅ Entry added to Firestore');
       }
-    } else {
-      // Create new entry
-      const newEntry = createEntry(
-        state.currentUser.id,
-        formData.goalId,
-        parseFloat(formData.amount),
-        formData.description || undefined,
-        formData.date
-      );
-      dispatch({ type: 'ADD_ENTRY', payload: newEntry });
+      
+      resetForm();
+    } catch (error) {
+      console.error('Error saving entry:', error);
+      alert('Failed to save entry. Please try again.');
     }
-    
-    resetForm();
   };
 
   const handleEdit = (entryId: string) => {
@@ -94,9 +103,15 @@ export default function Savings() {
     }
   };
 
-  const handleDelete = (entryId: string) => {
+  const handleDelete = async (entryId: string) => {
     if (confirm('Are you sure you want to delete this savings entry?')) {
-      dispatch({ type: 'DELETE_ENTRY', payload: entryId });
+      try {
+        await entriesService.delete(entryId);
+        console.log('✅ Entry deleted from Firestore');
+      } catch (error) {
+        console.error('Error deleting entry:', error);
+        alert('Failed to delete entry. Please try again.');
+      }
     }
   };
 

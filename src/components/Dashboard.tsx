@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import type { SavingsGoalWithProgress } from '../types';
+import MigrationHelper from './MigrationHelper';
 
 export default function Dashboard() {
   const { state } = useApp();
@@ -58,6 +59,9 @@ export default function Dashboard() {
           Track your family's savings progress
         </Typography>
       </Box>
+
+      {/* Migration Helper */}
+      <MigrationHelper />
 
       {/* Summary Cards */}
       <Box
