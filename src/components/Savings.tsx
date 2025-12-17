@@ -14,15 +14,21 @@ import {
   InputAdornment,
   MenuItem,
   Divider,
+  CircularProgress,
+  Chip,
 } from '@mui/material';
 import {
   Add as PlusIcon,
   Edit as PencilIcon,
   Delete as TrashIcon,
   AccountBalance as CurrencyDollarIcon,
+  PhotoCamera as PhotoCameraIcon,
+  Image as ImageIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 import { useApp, createEntry } from '../context/AppContext';
 import { entriesService } from '../firebase/firestore';
+import { storageService } from '../firebase/storage';
 
 export default function Savings() {
   const { state } = useApp();
@@ -34,6 +40,9 @@ export default function Savings() {
     description: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Get current user's entries only
   const userEntries = state.entries.filter(entry => entry.userId === state.currentUser?.id);
@@ -45,8 +54,38 @@ export default function Savings() {
       description: '',
       date: new Date().toISOString().split('T')[0]
     });
+    setSelectedImage(null);
+    setImagePreview(null);
     setShowCreateForm(false);
     setEditingEntry(null);
+  };
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        return;
+      }
+      setSelectedImage(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
   };
 
   const handleAddNewSavings = () => {
@@ -68,17 +107,33 @@ export default function Savings() {
     e.preventDefault();
     if (!formData.goalId || !formData.amount || !state.currentUser) return;
 
+    setIsUploading(true);
     try {
+      let proofImageUrl: string | undefined;
+
+      // Upload image if one was selected
+      if (selectedImage) {
+        // Generate temporary ID for new entries (will be replaced by Firestore)
+        const tempId = editingEntry || `temp_${Date.now()}`;
+        proofImageUrl = await storageService.uploadProofImage(selectedImage, tempId);
+      }
+
       if (editingEntry) {
         // Update existing entry in Firestore
         const entry = userEntries.find(e => e.id === editingEntry);
         if (entry) {
+          // Delete old image if we're uploading a new one
+          if (selectedImage && entry.proofImageUrl) {
+            await storageService.deleteProofImage(entry.proofImageUrl);
+          }
+
           const updatedEntry = {
             ...entry,
             goalId: formData.goalId,
             amount: parseFloat(formData.amount),
             description: formData.description || undefined,
-            date: formData.date
+            date: formData.date,
+            proofImageUrl: proofImageUrl || entry.proofImageUrl
           };
           await entriesService.update(editingEntry, updatedEntry);
           console.log('✅ Entry updated in Firestore');
@@ -93,7 +148,10 @@ export default function Savings() {
           formData.date
         );
         const { id, ...entryWithoutId } = newEntry;
-        await entriesService.add(entryWithoutId);
+        const entryData = proofImageUrl 
+          ? { ...entryWithoutId, proofImageUrl }
+          : entryWithoutId;
+        await entriesService.add(entryData);
         console.log('✅ Entry added to Firestore');
       }
       
@@ -106,6 +164,8 @@ export default function Savings() {
         ? 'Permission denied. Please check your Firestore security rules.'
         : `Failed to save entry: ${error?.message || 'Please check your Firebase setup and try again.'}`;
       alert(errorMessage);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -126,6 +186,12 @@ export default function Savings() {
   const handleDelete = async (entryId: string) => {
     if (confirm('Are you sure you want to delete this savings entry?')) {
       try {
+        // Delete proof image if it exists
+        const entry = userEntries.find(e => e.id === entryId);
+        if (entry?.proofImageUrl) {
+          await storageService.deleteProofImage(entry.proofImageUrl);
+        }
+        
         await entriesService.delete(entryId);
         console.log('✅ Entry deleted from Firestore');
       } catch (error) {
@@ -243,14 +309,77 @@ export default function Savings() {
                 placeholder="Optional note about this savings..."
                 fullWidth
               />
+
+              <Divider sx={{ my: 1 }} />
+
+              {/* Photo Upload Section */}
+              <Box>
+                <Typography variant="body2" fontWeight="500" gutterBottom>
+                  Proof of Deposit (Optional)
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
+                  Upload a photo of your deposit slip, bank transfer, or other proof
+                </Typography>
+
+                {imagePreview ? (
+                  <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      style={{ 
+                        maxWidth: '100%', 
+                        maxHeight: '200px', 
+                        borderRadius: '8px',
+                        border: '1px solid #e0e0e0'
+                      }} 
+                    />
+                    <IconButton
+                      onClick={handleRemoveImage}
+                      sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        bgcolor: 'background.paper',
+                        boxShadow: 1,
+                        '&:hover': { bgcolor: 'error.light', color: 'white' }
+                      }}
+                      size="small"
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ) : (
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    startIcon={<PhotoCameraIcon />}
+                    fullWidth
+                  >
+                    Choose Image
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                    />
+                  </Button>
+                )}
+              </Box>
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={resetForm}>
+            <Button onClick={resetForm} disabled={isUploading}>
               Cancel
             </Button>
-            <Button type="submit" variant="contained">
-              {editingEntry ? 'Update Entry' : 'Add Savings'}
+            <Button type="submit" variant="contained" disabled={isUploading}>
+              {isUploading ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  Uploading...
+                </>
+              ) : (
+                editingEntry ? 'Update Entry' : 'Add Savings'
+              )}
             </Button>
           </DialogActions>
         </form>
@@ -299,8 +428,8 @@ export default function Savings() {
                     {goalEntries
                       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                       .map((entry) => (
-                      <Box key={entry.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Box>
+                      <Box key={entry.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2 }}>
+                        <Box sx={{ flexGrow: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                             <Typography variant="h6" fontWeight="600">
                               ${entry.amount.toFixed(2)}
@@ -308,11 +437,37 @@ export default function Savings() {
                             <Typography variant="body2" color="text.secondary">
                               {new Date(entry.date).toLocaleDateString()}
                             </Typography>
+                            {entry.proofImageUrl && (
+                              <Chip
+                                icon={<ImageIcon fontSize="small" />}
+                                label="Proof"
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                              />
+                            )}
                           </Box>
                           {entry.description && (
                             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                               {entry.description}
                             </Typography>
+                          )}
+                          {entry.proofImageUrl && (
+                            <Box sx={{ mt: 1 }}>
+                              <img 
+                                src={entry.proofImageUrl} 
+                                alt="Proof of deposit" 
+                                style={{ 
+                                  maxWidth: '200px', 
+                                  maxHeight: '150px', 
+                                  borderRadius: '8px',
+                                  border: '1px solid #e0e0e0',
+                                  cursor: 'pointer',
+                                  objectFit: 'cover'
+                                }}
+                                onClick={() => window.open(entry.proofImageUrl, '_blank')}
+                              />
+                            </Box>
                           )}
                         </Box>
                         <Box sx={{ display: 'flex' }}>
