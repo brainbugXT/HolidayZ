@@ -73,11 +73,22 @@ export const goalsService = {
   // Add a new goal
   async add(goal: Omit<SavingsGoal, 'id'>): Promise<string> {
     try {
-      const goalData = {
-        ...goal,
+      // Remove undefined values (Firestore doesn't allow them)
+      const goalData: any = {
+        name: goal.name,
+        targetAmount: goal.targetAmount,
         createdAt: goal.createdAt || new Date().toISOString(),
-        deadline: goal.deadline || null
+        isActive: goal.isActive ?? true,
       };
+      
+      // Only add optional fields if they have values
+      if (goal.description) {
+        goalData.description = goal.description;
+      }
+      if (goal.deadline) {
+        goalData.deadline = goal.deadline;
+      }
+      
       const docRef = await addDoc(collection(db, GOALS_COLLECTION), goalData);
       return docRef.id;
     } catch (error) {
@@ -91,7 +102,17 @@ export const goalsService = {
     try {
       const docRef = doc(db, GOALS_COLLECTION, id);
       const { id: _, ...goalWithoutId } = goal;
-      await updateDoc(docRef, goalWithoutId);
+      
+      // Remove undefined values (Firestore doesn't allow them)
+      const cleanData: any = {};
+      Object.keys(goalWithoutId).forEach(key => {
+        const value = (goalWithoutId as any)[key];
+        if (value !== undefined) {
+          cleanData[key] = value;
+        }
+      });
+      
+      await updateDoc(docRef, cleanData);
     } catch (error) {
       console.error('Error updating goal:', error);
       throw error;
@@ -156,10 +177,20 @@ export const entriesService = {
   // Add a new entry
   async add(entry: Omit<SavingsEntry, 'id'>): Promise<string> {
     try {
-      const entryData = {
-        ...entry,
-        date: entry.date || new Date().toISOString()
+      // Remove undefined values (Firestore doesn't allow them)
+      const entryData: any = {
+        userId: entry.userId,
+        goalId: entry.goalId,
+        amount: entry.amount,
+        date: entry.date || new Date().toISOString(),
+        createdAt: entry.createdAt || new Date().toISOString(),
       };
+      
+      // Only add description if it has a value
+      if (entry.description) {
+        entryData.description = entry.description;
+      }
+      
       const docRef = await addDoc(collection(db, ENTRIES_COLLECTION), entryData);
       return docRef.id;
     } catch (error) {
@@ -173,7 +204,17 @@ export const entriesService = {
     try {
       const docRef = doc(db, ENTRIES_COLLECTION, id);
       const { id: _, ...entryWithoutId } = entry;
-      await updateDoc(docRef, entryWithoutId);
+      
+      // Remove undefined values (Firestore doesn't allow them)
+      const cleanData: any = {};
+      Object.keys(entryWithoutId).forEach(key => {
+        const value = (entryWithoutId as any)[key];
+        if (value !== undefined) {
+          cleanData[key] = value;
+        }
+      });
+      
+      await updateDoc(docRef, cleanData);
     } catch (error) {
       console.error('Error updating entry:', error);
       throw error;
