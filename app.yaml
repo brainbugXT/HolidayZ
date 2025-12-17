@@ -1,0 +1,48 @@
+runtime: nodejs18
+service: default
+
+# Automatic scaling configuration
+automatic_scaling:
+  min_instances: 0
+  max_instances: 10
+  target_cpu_utilization: 0.60
+
+# Environment variables
+env_variables:
+  NODE_ENV: production
+
+# Health check configuration
+liveness_check:
+  path: "/"
+  check_interval_sec: 30
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 1
+
+readiness_check:
+  path: "/"
+  check_interval_sec: 5
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 1
+
+# Static file handling
+handlers:
+- url: /assets
+  static_dir: dist/assets
+  secure: always
+  
+- url: /.*
+  static_files: dist/index.html
+  upload: dist/index.html
+  secure: always
+
+# Files to skip during deployment
+skip_files:
+- ^(.*/)?\..*$
+- ^(.*/)?.*\.yaml$
+- ^(.*/)?.*\.yml$
+- ^(.*/)?README\..*$
+- ^(.*/)?node_modules$
+- ^(.*/)?src$
+- ^(.*/)?public$

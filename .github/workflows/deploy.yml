@@ -1,0 +1,44 @@
+name: Deploy to Google Cloud App Engine
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Setup Google Cloud CLI
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        export_default_credentials: true
+        
+    - name: Deploy to App Engine
+      run: |
+        gcloud app deploy app.yaml --quiet --promote --stop-previous-version
+        
+    - name: Update dispatch rules (if needed)
+      run: |
+        if [ -f dispatch.yaml ]; then
+          gcloud app deploy dispatch.yaml --quiet
+        fi
