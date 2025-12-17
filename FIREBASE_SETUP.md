@@ -141,27 +141,7 @@ env_variables:
     VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
 ```
 
-### Step 6: Migrate Existing Data (Optional)
-
-If you have existing data in localStorage that you want to keep:
-
-1. Open your app in the browser
-2. Open the browser console (F12)
-3. Run this command:
-```javascript
-// Import the migration function
-import { migrateLocalStorageToFirestore } from './src/firebase/firestore';
-
-// Run migration
-await migrateLocalStorageToFirestore();
-```
-
-**OR** use the browser console directly:
-```javascript
-// This will be available in the app after you add a migration button
-```
-
-### Step 7: Test the Setup
+### Step 6: Test the Setup
 
 1. **Start the dev server:**
 ```bash

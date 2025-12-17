@@ -14,16 +14,18 @@ Your HolidayZ app now uses **Firebase Firestore** for data storage instead of lo
 ### New Files Created
 1. **`src/firebase/config.ts`** - Firebase initialization
 2. **`src/firebase/firestore.ts`** - Firestore CRUD operations service
-3. **`src/components/MigrationHelper.tsx`** - UI for migrating localStorage data
-4. **`.env.example`** - Template for environment variables
-5. **`FIREBASE_SETUP.md`** - Complete setup guide
+3. **`src/firebase/connectionCheck.ts`** - Firebase connection health check
+4. **`src/components/FirebaseSetupWizard.tsx`** - In-app setup wizard for Firebase
+5. **`.env.example`** - Template for environment variables
+6. **`FIREBASE_SETUP.md`** - Complete setup guide
 
 ### Modified Files
 1. **`src/context/AppContext.tsx`** - Now subscribes to Firestore in real-time
 2. **`src/components/Goals.tsx`** - Uses Firestore for goal operations
-3. **`src/components/Savings.tsx`** - Uses Firestore for entry operations
-4. **`src/components/Dashboard.tsx`** - Added migration helper button
+3. **`src/components/Savings.tsx`** - Uses Firestore for entry operations and auto-selects latest goal
+4. **`src/components/Dashboard.tsx`** - Uses real-time Firestore data
 5. **`package.json`** - Added Firebase dependency
+6. **`.github/workflows/deploy.yml`** - Injects Firebase credentials from GitHub Secrets
 
 ## 🚀 Next Steps Required
 
@@ -135,17 +137,7 @@ Open browser console and look for:
 - ✅ `📡 Subscribing to entries from Firestore...`
 - ✅ No Firebase errors
 
-### 8. Migrate Existing Data (If Needed)
-
-If you have existing savings data in localStorage:
-
-1. Open the app
-2. Go to Dashboard
-3. Click "Migrate Local Data to Cloud" button
-4. Confirm migration
-5. Done! Data is now in Firestore
-
-### 9. Deploy
+### 8. Deploy
 
 ```bash
 git add .
@@ -153,7 +145,7 @@ git commit -m "feat: Add Firebase Firestore for cross-device sync"
 git push
 ```
 
-### 10. Test Cross-Device Sync
+### 9. Test Cross-Device Sync
 
 1. Open app in Browser 1
 2. Open app in Browser 2 (or different device)
@@ -286,11 +278,11 @@ For now, simple is better! The app URL is private anyway.
 2. Hard refresh both browsers (Ctrl+Shift+R)
 3. Check network console for Firestore connections
 
-### Still seeing localStorage data
+### Starting Fresh
 
-**Solution:**
-1. Use Migration Helper button to move data to Firestore
-2. Clear localStorage: `localStorage.clear()`
+**To clear all data and start over:**
+1. Clear Firestore data from Firebase Console
+2. Clear localStorage: `localStorage.clear()` (only clears user login preference)
 3. Refresh page
 
 ## 📊 Monitoring
