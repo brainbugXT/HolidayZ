@@ -66,7 +66,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
         entries: state.entries.filter(entry => entry.id !== action.payload)
       };
     case 'LOAD_DATA':
-      return action.payload;
+      // Preserve currentUser when loading data from Firestore
+      return { ...action.payload, currentUser: state.currentUser };
     default:
       return state;
   }
