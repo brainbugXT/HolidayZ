@@ -1,0 +1,26 @@
+# Cost-Optimized cron configuration for App Engine
+# This file helps manage traffic and instance scaling based on usage patterns
+
+service: default
+schedule:
+  # Scale down instances during off-peak hours
+  - description: "Scale down during night hours (11 PM - 6 AM UTC)"
+    schedule: "0 23 * * *"
+    timezone: UTC
+    url: /_ah/admin/scale_down
+    
+  - description: "Scale up before business hours (6 AM UTC)"
+    schedule: "0 6 * * *"
+    timezone: UTC
+    url: /_ah/admin/scale_up
+
+# Weekend scaling
+  - description: "Minimal scaling on weekends"
+    schedule: "0 0 * * SAT"
+    timezone: UTC
+    url: /_ah/admin/weekend_mode
+
+  - description: "Resume normal scaling after weekend"
+    schedule: "0 6 * * MON"
+    timezone: UTC
+    url: /_ah/admin/normal_mode

@@ -1,43 +1,63 @@
 runtime: nodejs18
 service: default
 
-# Automatic scaling configuration
+# Cost-optimized instance configuration
+instance_class: F1  # Smallest instance class for minimal cost
+
+# Automatic scaling configuration for cost optimization
 automatic_scaling:
-  min_instances: 0
-  max_instances: 10
-  target_cpu_utilization: 0.60
+  min_instances: 0              # Scale to zero when no traffic (saves money)
+  max_instances: 3              # Limit max instances to control costs
+  target_cpu_utilization: 0.70 # Higher utilization threshold
+  target_throughput_utilization: 0.80
+  min_pending_latency: 1s       # Allow some latency to reduce instances
+  max_pending_latency: 15s
 
 # Environment variables
 env_variables:
   NODE_ENV: production
 
-# Health check configuration
+# Health check configuration - optimized for cost
 liveness_check:
   path: "/"
-  check_interval_sec: 30
-  timeout_sec: 4
-  failure_threshold: 2
+  check_interval_sec: 60        # Longer intervals to reduce overhead
+  timeout_sec: 10
+  failure_threshold: 3          # Allow more failures before restart
   success_threshold: 1
 
 readiness_check:
   path: "/"
-  check_interval_sec: 5
-  timeout_sec: 4
-  failure_threshold: 2
+  check_interval_sec: 15
+  timeout_sec: 10
+  failure_threshold: 3
   success_threshold: 1
 
-# Static file handling
+# Static file handling - with caching for better performance
 handlers:
+# Cache static assets for a year
+- url: /assets/(.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))
+  static_files: dist/assets/\1
+  upload: dist/assets/.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)
+  secure: always
+  expiration: "365d"
+  http_headers:
+    Cache-Control: "public, max-age=31536000, immutable"
+
+# Cache other assets for a shorter time
 - url: /assets
   static_dir: dist/assets
   secure: always
+  expiration: "1d"
   
+# Main application - no caching for HTML
 - url: /.*
   static_files: dist/index.html
   upload: dist/index.html
   secure: always
+  http_headers:
+    Cache-Control: "no-cache, no-store, must-revalidate"
 
-# Files to skip during deployment
+# Files to skip during deployment to reduce bundle size
 skip_files:
 - ^(.*/)?\..*$
 - ^(.*/)?.*\.yaml$
@@ -46,3 +66,8 @@ skip_files:
 - ^(.*/)?node_modules$
 - ^(.*/)?src$
 - ^(.*/)?public$
+- ^(.*/)?scripts$
+- ^(.*/)?\.git.*$
+- ^(.*/)?\.vscode$
+- ^(.*/)?package-lock\.json$
+- ^(.*/)?.*\.md$

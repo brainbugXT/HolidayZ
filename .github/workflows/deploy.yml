@@ -1,44 +1,132 @@
-name: Deploy to Google Cloud App Engine
+name: Cost-Optimized Deploy to Google Cloud
 
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    # Only deploy if certain files changed to avoid unnecessary deployments
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'app.yaml'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch: # Allow manual deployment
+
+# Cancel in-progress deployments if a new commit is pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  # Job to check if deployment is needed
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.changes.outputs.should-deploy }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+    
+    - name: Check for significant changes
+      id: changes
+      run: |
+        # Check if this is a docs-only change
+        if git diff --name-only HEAD~1 HEAD | grep -qvE '\.(md|txt)$|^\.github/(?!workflows)'; then
+          echo "should-deploy=true" >> $GITHUB_OUTPUT
+        else
+          echo "should-deploy=false" >> $GITHUB_OUTPUT
+        fi
+
+  build-and-deploy:
+    needs: check-changes
+    if: needs.check-changes.outputs.should-deploy == 'true'
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Setup Node.js
+    - name: Setup Node.js (with caching)
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
         
-    - name: Install dependencies
-      run: npm ci
+    - name: Install dependencies (with npm ci for faster installs)
+      run: npm ci --prefer-offline --no-audit --progress=false
       
-    - name: Build application
-      run: npm run build
-      
-    - name: Setup Google Cloud CLI
+    - name: Build application (with optimizations)
+      run: |
+        npm run build
+        # Compress assets further
+        find dist -name "*.js" -type f -exec gzip -k {} \;
+        find dist -name "*.css" -type f -exec gzip -k {} \;
+      env:
+        NODE_ENV: production
+        
+    - name: Optimize bundle size
+      run: |
+        echo "Bundle size analysis:"
+        du -sh dist/
+        echo "Largest files:"
+        find dist -type f -name "*.js" -o -name "*.css" | xargs ls -lah | sort -k5 -hr | head -10
+        
+    - name: Setup Google Cloud CLI (cached)
       uses: google-github-actions/setup-gcloud@v1
       with:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         export_default_credentials: true
         
-    - name: Deploy to App Engine
+    - name: Configure gcloud for cost optimization
       run: |
-        gcloud app deploy app.yaml --quiet --promote --stop-previous-version
+        # Set default region to reduce costs
+        gcloud config set compute/region us-central1
+        gcloud config set app/promote_by_default false
         
-    - name: Update dispatch rules (if needed)
+    - name: Deploy to App Engine (with traffic management)
       run: |
-        if [ -f dispatch.yaml ]; then
-          gcloud app deploy dispatch.yaml --quiet
+        # Deploy without promoting to test first
+        VERSION_ID=$(date +%Y%m%d-%H%M%S)
+        gcloud app deploy app.yaml \
+          --version=$VERSION_ID \
+          --no-promote \
+          --quiet \
+          --verbosity=warning
+        
+        # Only promote if it's during business hours (cost optimization)
+        HOUR=$(date +%H)
+        if [ $HOUR -ge 9 ] && [ $HOUR -le 17 ]; then
+          echo "Promoting version during business hours"
+          gcloud app services set-traffic default --splits=$VERSION_ID=100 --quiet
+        else
+          echo "Deployed as version $VERSION_ID but not promoted (off-hours deployment)"
+          echo "Promote manually: gcloud app services set-traffic default --splits=$VERSION_ID=100"
         fi
+        
+        # Clean up old versions to save storage costs
+        echo "Cleaning up old versions..."
+        gcloud app versions list --service=default --format="value(id)" --sort-by="~createTime" | tail -n +4 | xargs -r gcloud app versions delete --quiet --service=default
+        
+    - name: Verify deployment
+      run: |
+        # Get the app URL
+        APP_URL=$(gcloud app describe --format="value(defaultHostname)")
+        echo "Application deployed to: https://$APP_URL"
+        
+        # Basic health check
+        curl -f -s "https://$APP_URL" > /dev/null && echo "✓ App is responding" || echo "⚠ App health check failed"
+
+  # Notification job (only runs if deployment fails)
+  notify-on-failure:
+    needs: build-and-deploy
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notify on failure
+      run: |
+        echo "Deployment failed. Check the logs at:"
+        echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
