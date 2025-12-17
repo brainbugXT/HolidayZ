@@ -42,7 +42,8 @@ jobs:
 
   build-and-deploy:
     needs: check-changes
-    if: needs.check-changes.outputs.should-deploy == 'true'
+    # Always run for manual dispatch, otherwise check for significant changes
+    if: github.event_name == 'workflow_dispatch' || needs.check-changes.outputs.should-deploy == 'true'
     runs-on: ubuntu-latest
     
     steps:
