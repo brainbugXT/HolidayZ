@@ -74,13 +74,23 @@ If you ever need to deploy manually:
 ## 🛠️ Technology Stack
 
 - **Framework**: React 19 with TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Icons**: Heroicons
+- **Build Tool**: Vite with Rolldown
+- **UI Library**: Material-UI (MUI X)
+- **Icons**: Material-UI Icons
 - **State Management**: React Context API with `useReducer`
 - **Data Persistence**: Browser Local Storage
 - **Deployment**: Google Cloud App Engine
-- **CI/CD**: GitHub Actions
+- **CI/CD**: GitHub Actions (Automated)
+
+## 📚 Documentation
+
+- **[MUI Migration Complete](./MUI_MIGRATION_COMPLETE.md)** - Details on the MUI migration
+- **[Cache Clearing Explained](./CACHE_CLEARING_EXPLAINED.md)** - How automatic cache clearing works
+- **[Deployment Verification](./DEPLOYMENT_VERIFICATION.md)** - Quick guide to verify deployments
+- **[Deployment Troubleshooting](./DEPLOYMENT_TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Cost Optimization](./COST_OPTIMIZATION.md)** - Cost-saving strategies
+- **[GitHub Setup](./GITHUB_SETUP.md)** - Initial repository setup
+- **[Deployment Setup](./DEPLOYMENT_SETUP.md)** - Google Cloud configuration
 
 ## 📱 Application Structure
 
