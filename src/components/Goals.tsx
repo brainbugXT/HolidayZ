@@ -72,9 +72,14 @@ export default function Goals() {
       }
       
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving goal:', error);
-      alert('Failed to save goal. Please try again.');
+      const errorMessage = error?.code === 'unavailable' 
+        ? 'Cannot connect to Firebase. Please check your internet connection and Firebase configuration.'
+        : error?.code === 'permission-denied'
+        ? 'Permission denied. Please check your Firestore security rules.'
+        : `Failed to save goal: ${error?.message || 'Please check your Firebase setup and try again.'}`;
+      alert(errorMessage);
     }
   };
 

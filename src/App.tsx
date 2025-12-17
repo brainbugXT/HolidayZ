@@ -6,6 +6,7 @@ import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Goals from './components/Goals';
 import Savings from './components/Savings';
+import FirebaseSetupWizard from './components/FirebaseSetupWizard';
 
 // Declare build time constant
 declare const __BUILD_TIME__: string;
@@ -50,9 +51,12 @@ function AppContent() {
   };
 
   return (
-    <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
-      {renderPage()}
-    </Layout>
+    <>
+      <FirebaseSetupWizard />
+      <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
+        {renderPage()}
+      </Layout>
+    </>
   );
 }
 

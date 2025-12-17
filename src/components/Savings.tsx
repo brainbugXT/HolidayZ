@@ -83,9 +83,14 @@ export default function Savings() {
       }
       
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving entry:', error);
-      alert('Failed to save entry. Please try again.');
+      const errorMessage = error?.code === 'unavailable' 
+        ? 'Cannot connect to Firebase. Please check your internet connection and Firebase configuration.'
+        : error?.code === 'permission-denied'
+        ? 'Permission denied. Please check your Firestore security rules.'
+        : `Failed to save entry: ${error?.message || 'Please check your Firebase setup and try again.'}`;
+      alert(errorMessage);
     }
   };
 
