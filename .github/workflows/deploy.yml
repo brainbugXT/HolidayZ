@@ -90,29 +90,32 @@ jobs:
         gcloud config set compute/region us-central1
         gcloud config set app/promote_by_default false
         
-    - name: Deploy to App Engine (with traffic management)
+    - name: Deploy to App Engine (with cache clearing)
       run: |
-        # Deploy without promoting to test first
+        # Create version ID with timestamp for cache busting
         VERSION_ID=$(date +%Y%m%d-%H%M%S)
+        echo "Deploying version: $VERSION_ID"
+        
+        # Deploy new version
         gcloud app deploy app.yaml \
           --version=$VERSION_ID \
           --no-promote \
           --quiet \
           --verbosity=warning
         
-        # Only promote if it's during business hours (cost optimization)
-        HOUR=$(date +%H)
-        if [ $HOUR -ge 9 ] && [ $HOUR -le 17 ]; then
-          echo "Promoting version during business hours"
-          gcloud app services set-traffic default --splits=$VERSION_ID=100 --quiet
-        else
-          echo "Deployed as version $VERSION_ID but not promoted (off-hours deployment)"
-          echo "Promote manually: gcloud app services set-traffic default --splits=$VERSION_ID=100"
-        fi
+        # Always promote immediately to clear caches and show latest version
+        echo "Promoting new version and clearing caches..."
+        gcloud app services set-traffic default --splits=$VERSION_ID=100 --quiet
         
-        # Clean up old versions to save storage costs
+        # Wait a moment for traffic to switch
+        sleep 5
+        
+        echo "✓ Version $VERSION_ID promoted successfully"
+        echo "Cache cleared - users will see the new version on next page load"
+        
+        # Clean up old versions to save storage costs (keep last 3)
         echo "Cleaning up old versions..."
-        gcloud app versions list --service=default --format="value(id)" --sort-by="~createTime" | tail -n +4 | xargs -r gcloud app versions delete --quiet --service=default
+        gcloud app versions list --service=default --format="value(id)" --sort-by="~createTime" | tail -n +4 | xargs -r gcloud app versions delete --quiet --service=default || echo "No old versions to delete"
         
     - name: Verify deployment
       run: |

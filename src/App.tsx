@@ -7,6 +7,9 @@ import Dashboard from './components/Dashboard';
 import Goals from './components/Goals';
 import Savings from './components/Savings';
 
+// Declare build time constant
+declare const __BUILD_TIME__: string;
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -17,6 +20,13 @@ const theme = createTheme({
     },
   },
 });
+
+// Log build info on app load
+if (typeof __BUILD_TIME__ !== 'undefined') {
+  console.log('%c🚀 HolidayZ Family Savings Tracker', 'color: #2563eb; font-size: 16px; font-weight: bold;');
+  console.log('%c📦 Build Time:', 'color: #16a34a; font-weight: bold;', __BUILD_TIME__);
+  console.log('%c💎 UI Framework:', 'color: #9333ea; font-weight: bold;', 'Material-UI (MUI) v7');
+}
 
 function AppContent() {
   const { state } = useApp();
