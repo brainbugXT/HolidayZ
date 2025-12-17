@@ -16,21 +16,41 @@ export const storageService = {
       const fileName = `${entryId}_${timestamp}.${fileExtension}`;
       const filePath = `proof-images/${fileName}`;
       
+      console.log('📤 Starting upload:', {
+        fileName,
+        fileSize: `${(file.size / 1024).toFixed(2)} KB`,
+        fileType: file.type
+      });
+      
       // Create storage reference
       const storageRef = ref(storage, filePath);
       
-      // Upload the file
-      console.log('📤 Uploading proof image to Firebase Storage...');
-      await uploadBytes(storageRef, file);
+      // Upload the file with timeout
+      console.log('📤 Uploading to Firebase Storage...');
+      const uploadPromise = uploadBytes(storageRef, file);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Upload timeout - check Firebase Storage rules')), 30000)
+      );
+      
+      await Promise.race([uploadPromise, timeoutPromise]);
+      console.log('✅ Upload complete, getting download URL...');
       
       // Get download URL
       const downloadURL = await getDownloadURL(storageRef);
       console.log('✅ Proof image uploaded successfully:', downloadURL);
       
       return downloadURL;
-    } catch (error) {
-      console.error('Error uploading proof image:', error);
-      throw error;
+    } catch (error: any) {
+      console.error('❌ Error uploading proof image:', error);
+      
+      // Provide helpful error messages
+      if (error.code === 'storage/unauthorized') {
+        throw new Error('Firebase Storage permission denied. Please configure Storage security rules.');
+      } else if (error.message?.includes('timeout')) {
+        throw new Error('Upload timed out. Check your internet connection and Firebase Storage configuration.');
+      } else {
+        throw new Error(`Upload failed: ${error.message || 'Unknown error'}`);
+      }
     }
   },
 
