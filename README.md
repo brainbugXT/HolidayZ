@@ -14,11 +14,11 @@ A beautiful React application for tracking family savings goals, designed for th
 
 ## 👥 Family Members
 
-The application is pre-configured for 4 family members:
+The application is pre-configured for the De Beer family:
 - Kenith De Beer (kenith.debeer@gmail.com)
-- Family Member 2
-- Family Member 3
-- Family Member 4
+- Lee de Beer (lee.debeer@gmail.com)
+- Alissa-Lee de Beer (alissalee.debeer@gmail.com)
+- Triston de Beer (triston.debeer@gmail.com)
 
 ## 🚀 Getting Started
 

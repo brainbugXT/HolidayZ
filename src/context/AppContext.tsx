@@ -23,9 +23,9 @@ const initialState: AppState = {
   currentUser: null,
   users: [
     { id: '1', name: 'Kenith De Beer', email: 'kenith.debeer@gmail.com' },
-    { id: '2', name: 'Family Member 2', email: 'member2@example.com' },
-    { id: '3', name: 'Family Member 3', email: 'member3@example.com' },
-    { id: '4', name: 'Family Member 4', email: 'member4@example.com' },
+    { id: '2', name: 'Lee de Beer', email: 'lee.debeer@gmail.com' },
+    { id: '3', name: 'Alissa-Lee de Beer', email: 'alissalee.debeer@gmail.com' },
+    { id: '4', name: 'Triston de Beer', email: 'triston.debeer@gmail.com' },
   ],
   goals: [],
   entries: []
