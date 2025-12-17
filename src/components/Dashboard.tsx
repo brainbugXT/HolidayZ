@@ -42,10 +42,8 @@ export default function Dashboard() {
       return { text: 'Due today!', color: 'warning.main' };
     } else if (daysLeft === 1) {
       return { text: '1 day left', color: 'warning.main' };
-    } else if (daysLeft <= 7) {
+    } else if (daysLeft <= 60) {
       return { text: `${daysLeft} days left`, color: 'warning.main' };
-    } else if (daysLeft <= 30) {
-      return { text: `${daysLeft} days left`, color: 'info.main' };
     } else {
       return { text: `${daysLeft} days left`, color: 'text.secondary' };
     }
@@ -209,7 +207,7 @@ export default function Dashboard() {
                                 sx={{ 
                                   bgcolor: daysLeft !== null && daysLeft < 0 
                                     ? 'error.lighter' 
-                                    : daysLeft !== null && daysLeft <= 7 
+                                    : daysLeft !== null && daysLeft <= 60 
                                     ? 'warning.lighter' 
                                     : 'action.hover',
                                   color: daysLeftDisplay.color,
