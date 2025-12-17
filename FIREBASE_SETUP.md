@@ -40,18 +40,18 @@ Your HolidayZ app has been upgraded to use **Firebase Firestore** for cross-devi
 1. In Firestore Database, click the "Rules" tab
 2. Replace the default rules with these:
 
-```
+```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow anyone to read all goals and entries
+    // Allow anyone to read/write all goals and entries
     // (Since this is a private family app)
-    match /savings-goals/{document=**} {
-      allow read, write: true;
+    match /savings-goals/{goalId} {
+      allow read, write: if true;
     }
     
-    match /savings-entries/{document=**} {
-      allow read, write: true;
+    match /savings-entries/{entryId} {
+      allow read, write: if true;
     }
   }
 }
