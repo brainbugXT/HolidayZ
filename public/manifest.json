@@ -1,0 +1,17 @@
+{
+  "name": "HolidayZ - Family Savings Tracker",
+  "short_name": "HolidayZ",
+  "description": "Track family savings goals together",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
