@@ -5,6 +5,7 @@ import {
   Typography,
   LinearProgress,
   Chip,
+  Avatar,
 } from '@mui/material';
 import {
   BarChart as ChartBarIcon,
@@ -15,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import type { SavingsGoalWithProgress } from '../types';
+import { getAvatarUrl, getUserInitials, getUserColor } from '../utils/avatar';
 
 export default function Dashboard() {
   const { state } = useApp();
@@ -277,46 +279,97 @@ export default function Dashboard() {
                             const hasContributed = total > 0;
                             
                             return (
-                              <Chip
+                              <Box
                                 key={user.id}
-                                icon={isTopContributor ? <TrophyIcon sx={{ fontSize: 18 }} /> : undefined}
-                                label={
-                                  <Box sx={{ textAlign: 'center' }}>
-                                    <Typography variant="caption" display="block">
-                                      {user.name}
-                                    </Typography>
-                                    <Typography 
-                                      variant="body2" 
-                                      fontWeight="500"
-                                      sx={{ 
-                                        fontStyle: hasContributed ? 'normal' : 'italic',
-                                        opacity: hasContributed ? 1 : 0.6
-                                      }}
-                                    >
-                                      {hasContributed ? `$${total.toFixed(2)}` : 'Not yet'}
-                                    </Typography>
-                                  </Box>
-                                }
-                                variant={hasContributed ? 'filled' : 'outlined'}
-                                sx={{ 
-                                  height: 'auto', 
-                                  py: 1,
+                                sx={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  gap: 0.5,
+                                  p: 1.5,
+                                  borderRadius: 2,
                                   bgcolor: hasContributed 
-                                    ? (isCurrentUser ? 'primary.main' : 'default')
+                                    ? (isCurrentUser ? 'primary.main' : 'action.hover')
                                     : 'transparent',
-                                  color: hasContributed
-                                    ? (isCurrentUser ? 'primary.contrastText' : 'text.primary')
-                                    : 'text.secondary',
-                                  borderColor: !hasContributed ? 'divider' : undefined,
-                                  '& .MuiTypography-root': {
-                                    color: 'inherit'
-                                  },
-                                  '& .MuiChip-icon': {
-                                    color: isCurrentUser ? 'primary.contrastText' : '#FFD700',
-                                    ml: 1
+                                  border: hasContributed ? 'none' : '1px dashed',
+                                  borderColor: 'divider',
+                                  transition: 'all 0.2s ease',
+                                  position: 'relative',
+                                  '&:hover': {
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: hasContributed ? 2 : 1,
                                   }
                                 }}
-                              />
+                              >
+                                {/* Trophy badge for top contributor */}
+                                {isTopContributor && (
+                                  <Box
+                                    sx={{
+                                      position: 'absolute',
+                                      top: -8,
+                                      right: -8,
+                                      width: 28,
+                                      height: 28,
+                                      bgcolor: '#FFD700',
+                                      borderRadius: '50%',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      boxShadow: 2,
+                                      zIndex: 1,
+                                    }}
+                                  >
+                                    <TrophyIcon sx={{ fontSize: 16, color: '#000' }} />
+                                  </Box>
+                                )}
+                                
+                                {/* Avatar */}
+                                <Avatar
+                                  src={getAvatarUrl(user.name, user.email, 64)}
+                                  alt={user.name}
+                                  sx={{
+                                    width: 48,
+                                    height: 48,
+                                    bgcolor: getUserColor(user.name),
+                                    fontSize: '1rem',
+                                    fontWeight: 600,
+                                    opacity: hasContributed ? 1 : 0.6,
+                                    border: isCurrentUser ? '3px solid' : 'none',
+                                    borderColor: isCurrentUser ? 'primary.contrastText' : undefined,
+                                  }}
+                                >
+                                  {getUserInitials(user.name)}
+                                </Avatar>
+                                
+                                {/* Name */}
+                                <Typography 
+                                  variant="caption" 
+                                  fontWeight="500"
+                                  sx={{ 
+                                    color: hasContributed
+                                      ? (isCurrentUser ? 'primary.contrastText' : 'text.primary')
+                                      : 'text.secondary',
+                                    textAlign: 'center',
+                                    lineHeight: 1.2,
+                                  }}
+                                >
+                                  {user.name.split(' ')[0]}
+                                </Typography>
+                                
+                                {/* Amount */}
+                                <Typography 
+                                  variant="body2" 
+                                  fontWeight="600"
+                                  sx={{ 
+                                    color: hasContributed
+                                      ? (isCurrentUser ? 'primary.contrastText' : 'primary.main')
+                                      : 'text.disabled',
+                                    fontStyle: hasContributed ? 'normal' : 'italic',
+                                  }}
+                                >
+                                  {hasContributed ? `$${total.toFixed(2)}` : 'Not yet'}
+                                </Typography>
+                              </Box>
                             );
                           });
                         })()}
