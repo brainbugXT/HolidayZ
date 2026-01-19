@@ -7,6 +7,7 @@ import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Goals from './components/Goals';
 import Savings from './components/Savings';
+import GoalHealthDashboard from './components/GoalHealthDashboard';
 import FirebaseSetupWizard from './components/FirebaseSetupWizard';
 import QuickAddButton from './components/QuickAddButton';
 import { envDebug } from './debug-env';
@@ -24,7 +25,7 @@ if (typeof __BUILD_TIME__ !== 'undefined') {
 
 function AppContent() {
   const { state } = useApp();
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'goals' | 'savings'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'goals' | 'savings' | 'health'>('dashboard');
 
   if (!state.currentUser) {
     return <AuthPage />;
@@ -38,6 +39,8 @@ function AppContent() {
         return <Goals />;
       case 'savings':
         return <Savings />;
+      case 'health':
+        return <GoalHealthDashboard />;
       default:
         return <Dashboard />;
     }

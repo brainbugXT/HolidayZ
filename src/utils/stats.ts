@@ -197,7 +197,13 @@ export function forecastCompletion(
   goal: SavingsGoal,
   totalSaved: number,
   entries: SavingsEntry[]
-): { date: Date; daysFromNow: number } | null {
+): {
+  estimatedCompletion: string;
+  daysToCompletion: number;
+  isOnTrack: boolean;
+  monthlyRate: number;
+  confidence: 'high' | 'medium' | 'low';
+} | null {
   const remaining = goal.targetAmount - totalSaved;
   if (remaining <= 0) return null;
   
@@ -211,6 +217,7 @@ export function forecastCompletion(
   
   const recentTotal = recentEntries.reduce((sum, entry) => sum + entry.amount, 0);
   const dailyRate = recentTotal / 90;
+  const monthlyRate = dailyRate * 30;
   
   if (dailyRate <= 0) return null;
   
@@ -218,9 +225,27 @@ export function forecastCompletion(
   const completionDate = new Date();
   completionDate.setDate(completionDate.getDate() + daysToComplete);
   
+  // Determine if on track
+  let isOnTrack = true;
+  if (goal.deadline) {
+    const deadlineDate = new Date(goal.deadline);
+    isOnTrack = completionDate <= deadlineDate;
+  }
+  
+  // Determine confidence level based on data points and consistency
+  let confidence: 'high' | 'medium' | 'low' = 'medium';
+  if (recentEntries.length >= 10) {
+    confidence = 'high';
+  } else if (recentEntries.length < 5) {
+    confidence = 'low';
+  }
+  
   return {
-    date: completionDate,
-    daysFromNow: daysToComplete,
+    estimatedCompletion: completionDate.toISOString().split('T')[0],
+    daysToCompletion: daysToComplete,
+    isOnTrack,
+    monthlyRate,
+    confidence,
   };
 }
 

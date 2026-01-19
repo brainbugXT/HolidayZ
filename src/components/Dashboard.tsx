@@ -34,11 +34,13 @@ import {
 } from '../utils/stats';
 import SavingsVelocityChart from './SavingsVelocityChart';
 import PersonalStatsDialog from './PersonalStatsDialog';
+import YearInReviewDialog from './YearInReviewDialog';
 
 export default function Dashboard() {
   const { state } = useApp();
   const [statsDialogOpen, setStatsDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+  const [yearReviewOpen, setYearReviewOpen] = useState(false);
 
   const handleOpenStats = (userId?: string) => {
     setSelectedUserId(userId);
@@ -48,6 +50,14 @@ export default function Dashboard() {
   const handleCloseStats = () => {
     setStatsDialogOpen(false);
     setSelectedUserId(undefined);
+  };
+
+  const handleOpenYearReview = () => {
+    setYearReviewOpen(true);
+  };
+
+  const handleCloseYearReview = () => {
+    setYearReviewOpen(false);
   };
 
   const calculateDaysLeft = (deadline: string | undefined) => {
@@ -113,13 +123,22 @@ export default function Dashboard() {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-          Family Savings Dashboard
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Track your family's savings progress
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
+            Family Savings Dashboard
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Track your family's savings progress
+          </Typography>
+        </Box>
+        <Button
+          variant="outlined"
+          onClick={handleOpenYearReview}
+          sx={{ minWidth: 140 }}
+        >
+          🎊 {new Date().getFullYear()} Review
+        </Button>
       </Box>
 
       {/* Summary Cards */}
@@ -660,6 +679,12 @@ export default function Dashboard() {
         open={statsDialogOpen}
         onClose={handleCloseStats}
         userId={selectedUserId}
+      />
+
+      {/* Year in Review Dialog */}
+      <YearInReviewDialog
+        open={yearReviewOpen}
+        onClose={handleCloseYearReview}
       />
     </Box>
   );

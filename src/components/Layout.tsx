@@ -22,14 +22,15 @@ import {
   AccountCircle as UserCircleIcon,
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
+  FavoriteBorder as HealthIcon,
 } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import { useThemeMode } from '../context/ThemeContext';
 
 interface LayoutProps {
   children: ReactNode;
-  currentPage: 'dashboard' | 'goals' | 'savings';
-  onNavigate: (page: 'dashboard' | 'goals' | 'savings') => void;
+  currentPage: 'dashboard' | 'goals' | 'savings' | 'health';
+  onNavigate: (page: 'dashboard' | 'goals' | 'savings' | 'health') => void;
 }
 
 export default function Layout({ children, currentPage, onNavigate }: LayoutProps) {
@@ -44,8 +45,9 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
 
   const navigation = [
     { name: 'Dashboard', page: 'dashboard' as const, icon: <HomeIcon /> },
-    { name: 'Savings Goals', page: 'goals' as const, icon: <ChartBarIcon /> },
-    { name: 'My Savings', page: 'savings' as const, icon: <CurrencyDollarIcon /> },
+    { name: 'Goals', page: 'goals' as const, icon: <ChartBarIcon /> },
+    { name: 'Savings', page: 'savings' as const, icon: <CurrencyDollarIcon /> },
+    { name: 'Health', page: 'health' as const, icon: <HealthIcon /> },
   ];
 
   const currentTabIndex = navigation.findIndex(item => item.page === currentPage);
