@@ -34,6 +34,15 @@ readiness_check:
 
 # Static file handling - optimized for cache busting
 handlers:
+# Serve favicon and other root-level static files (favicon.svg, manifest.json, etc.)
+- url: /(favicon\.svg|manifest\.json|vite\.svg)
+  static_files: dist/\1
+  upload: dist/(favicon\.svg|manifest\.json|vite\.svg)
+  secure: always
+  expiration: "7d"
+  http_headers:
+    Cache-Control: "public, max-age=604800"
+
 # Cache hashed assets (with version in filename) for a year
 # Vite adds hashes to filenames, so these are safe to cache forever
 - url: /assets/(.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))
