@@ -10,12 +10,20 @@ import {
   MenuItem,
   Typography,
   Container,
+  Alert,
+  Chip,
 } from '@mui/material';
+import { 
+  GetApp as GetAppIcon,
+  CheckCircle as CheckCircleIcon 
+} from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 
 export default function AuthPage() {
   const { state, dispatch } = useApp();
   const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const { isInstallable, isInstalled, handleInstallClick } = usePWAInstall();
 
   const handleLogin = () => {
     const user = state.users.find(u => u.id === selectedUserId);
@@ -99,6 +107,44 @@ export default function AuthPage() {
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
             Select your family member profile to continue
           </Typography>
+
+          {/* PWA Install Prompt */}
+          {isInstallable && (
+            <Alert 
+              severity="info" 
+              sx={{ 
+                mt: 3,
+                animation: 'slideDown 0.5s ease-out',
+                '@keyframes slideDown': {
+                  from: { opacity: 0, transform: 'translateY(-10px)' },
+                  to: { opacity: 1, transform: 'translateY(0)' },
+                },
+              }}
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={handleInstallClick}
+                  startIcon={<GetAppIcon />}
+                  sx={{ fontWeight: 'bold' }}
+                >
+                  Install
+                </Button>
+              }
+            >
+              Install HolidayZ for quick access from your home screen!
+            </Alert>
+          )}
+
+          {/* App Installed Badge */}
+          {isInstalled && (
+            <Chip
+              icon={<CheckCircleIcon />}
+              label="App Installed"
+              color="success"
+              sx={{ mt: 2 }}
+            />
+          )}
         </Box>
 
         <Card elevation={3}>
@@ -126,11 +172,50 @@ export default function AuthPage() {
               variant="contained"
               fullWidth
               size="large"
+              sx={{ mb: 2 }}
             >
               Continue to Dashboard
             </Button>
+
+            {/* Alternative Install Button in Card */}
+            {isInstallable && (
+              <Button
+                onClick={handleInstallClick}
+                variant="outlined"
+                fullWidth
+                size="large"
+                startIcon={<GetAppIcon />}
+                sx={{
+                  borderColor: '#4F46E5',
+                  color: '#4F46E5',
+                  '&:hover': {
+                    borderColor: '#7C3AED',
+                    backgroundColor: 'rgba(79, 70, 229, 0.04)',
+                  },
+                }}
+              >
+                Install App
+              </Button>
+            )}
           </CardContent>
         </Card>
+
+        {/* Help Text for Installation */}
+        {isInstallable && (
+          <Typography 
+            variant="caption" 
+            color="text.secondary" 
+            sx={{ 
+              display: 'block', 
+              textAlign: 'center', 
+              mt: 2,
+              px: 2,
+            }}
+          >
+            💡 Tip: Install the app for faster access and offline use. 
+            Works on phones, tablets, and computers!
+          </Typography>
+        )}
       </Container>
     </Box>
   );
