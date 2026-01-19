@@ -38,7 +38,14 @@ export function calculateStreak(userId: string, entries: SavingsEntry[]): number
 /**
  * Calculate user's personal statistics
  */
-export function calculateUserStats(userId: string, entries: SavingsEntry[], goals: SavingsGoal[]) {
+export function calculateUserStats(userId: string, entries: SavingsEntry[], goals: SavingsGoal[]): {
+  totalContributed: number;
+  avgMonthly: number;
+  favoriteGoal: { name: string; count: number; total: number } | null;
+  streak: number;
+  totalContributions: number;
+  largestContribution: number;
+} {
   const userEntries = entries.filter(entry => entry.userId === userId);
   
   const totalContributed = userEntries.reduce((sum, entry) => sum + entry.amount, 0);

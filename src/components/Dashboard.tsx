@@ -7,6 +7,7 @@ import {
   Chip,
   Avatar,
   Tooltip,
+  Button,
 } from '@mui/material';
 import {
   BarChart as ChartBarIcon,
@@ -19,7 +20,10 @@ import {
   Warning as WarningIcon,
   Error as ErrorIcon,
   LightbulbOutlined as LightbulbIcon,
+  Timeline as TimelineIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material';
+import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import type { SavingsGoalWithProgress } from '../types';
 import { getAvatarUrl, getUserInitials, getUserColor } from '../utils/avatar';
@@ -28,9 +32,23 @@ import {
   calculateGoalHealth, 
   calculateBudgetRecommendation 
 } from '../utils/stats';
+import SavingsVelocityChart from './SavingsVelocityChart';
+import PersonalStatsDialog from './PersonalStatsDialog';
 
 export default function Dashboard() {
   const { state } = useApp();
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+
+  const handleOpenStats = (userId?: string) => {
+    setSelectedUserId(userId);
+    setStatsDialogOpen(true);
+  };
+
+  const handleCloseStats = () => {
+    setStatsDialogOpen(false);
+    setSelectedUserId(undefined);
+  };
 
   const calculateDaysLeft = (deadline: string | undefined) => {
     if (!deadline) return null;
@@ -180,6 +198,136 @@ export default function Dashboard() {
             </Box>
           </CardContent>
         </Card>
+      </Box>
+
+      {/* Analytics Section */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h5" fontWeight="600">
+            Analytics & Insights
+          </Typography>
+          <Button
+            startIcon={<PersonIcon />}
+            variant="outlined"
+            size="small"
+            onClick={() => handleOpenStats()}
+          >
+            My Stats
+          </Button>
+        </Box>
+        
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'repeat(2, 1fr)' }, gap: 3 }}>
+          {/* Velocity Chart */}
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <TimelineIcon color="primary" />
+                <Typography variant="h6" fontWeight="600">
+                  Savings Velocity
+                </Typography>
+              </Box>
+              <SavingsVelocityChart />
+            </CardContent>
+          </Card>
+
+          {/* Family Stats */}
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <UsersIcon color="primary" />
+                <Typography variant="h6" fontWeight="600">
+                  Family Performance
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {state.users.map(user => {
+                  const userEntries = state.entries.filter(e => e.userId === user.id);
+                  const totalContributed = userEntries.reduce((sum, e) => sum + e.amount, 0);
+                  const streak = calculateStreak(user.id, state.entries);
+                  const isCurrentUser = state.currentUser?.id === user.id;
+
+                  return (
+                    <Box
+                      key={user.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: isCurrentUser ? 'primary.lighter' : 'action.hover',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: isCurrentUser ? 'primary.light' : 'action.selected',
+                          transform: 'translateX(4px)',
+                        },
+                      }}
+                      onClick={() => handleOpenStats(user.id)}
+                    >
+                      <Box sx={{ position: 'relative' }}>
+                        <Avatar
+                          src={getAvatarUrl(user.name, user.email, 40)}
+                          alt={user.name}
+                          sx={{
+                            bgcolor: getUserColor(user.id),
+                            width: 40,
+                            height: 40,
+                          }}
+                        >
+                          {getUserInitials(user.name)}
+                        </Avatar>
+                        {streak >= 3 && (
+                          <Tooltip title={`${streak} month streak!`}>
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                top: -4,
+                                right: -4,
+                                bgcolor: 'error.main',
+                                borderRadius: '50%',
+                                width: 20,
+                                height: 20,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '2px solid white',
+                              }}
+                            >
+                              <FireIcon sx={{ fontSize: 12, color: 'white' }} />
+                            </Box>
+                          </Tooltip>
+                        )}
+                      </Box>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography variant="body1" fontWeight="600">
+                          {user.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {userEntries.length} contributions
+                        </Typography>
+                      </Box>
+                      <Box sx={{ textAlign: 'right' }}>
+                        <Typography variant="h6" fontWeight="bold" color="primary">
+                          R{totalContributed.toFixed(2)}
+                        </Typography>
+                        {streak >= 3 && (
+                          <Chip
+                            icon={<FireIcon />}
+                            label={`${streak} months`}
+                            size="small"
+                            color="error"
+                            sx={{ height: 20, '& .MuiChip-label': { px: 1, fontSize: '0.7rem' } }}
+                          />
+                        )}
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
       </Box>
 
       {/* Goals Overview */}
@@ -506,6 +654,13 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Personal Stats Dialog */}
+      <PersonalStatsDialog
+        open={statsDialogOpen}
+        onClose={handleCloseStats}
+        userId={selectedUserId}
+      />
     </Box>
   );
 }
