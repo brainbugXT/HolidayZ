@@ -6,6 +6,7 @@ import {
   LinearProgress,
   Chip,
   Avatar,
+  Tooltip,
 } from '@mui/material';
 import {
   BarChart as ChartBarIcon,
@@ -13,10 +14,20 @@ import {
   TrendingUp as ArrowTrendingUpIcon,
   People as UsersIcon,
   EmojiEvents as TrophyIcon,
+  Whatshot as FireIcon,
+  CheckCircle as CheckCircleIcon,
+  Warning as WarningIcon,
+  Error as ErrorIcon,
+  LightbulbOutlined as LightbulbIcon,
 } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import type { SavingsGoalWithProgress } from '../types';
 import { getAvatarUrl, getUserInitials, getUserColor } from '../utils/avatar';
+import { 
+  calculateStreak, 
+  calculateGoalHealth, 
+  calculateBudgetRecommendation 
+} from '../utils/stats';
 
 export default function Dashboard() {
   const { state } = useApp();
@@ -193,16 +204,68 @@ export default function Dashboard() {
               {goalsWithProgress.map((goal) => {
                 const daysLeft = calculateDaysLeft(goal.deadline);
                 const daysLeftDisplay = getDaysLeftDisplay(daysLeft);
+                const health = calculateGoalHealth(goal, goal.totalSaved);
+                const recommendation = calculateBudgetRecommendation(
+                  goal,
+                  goal.totalSaved,
+                  state.users.length
+                );
+                
+                // Health indicator config
+                const healthConfig = {
+                  'complete': { 
+                    icon: <CheckCircleIcon />, 
+                    color: 'success.main', 
+                    label: 'Complete', 
+                    bgcolor: 'success.lighter' 
+                  },
+                  'on-track': { 
+                    icon: <CheckCircleIcon />, 
+                    color: 'success.main', 
+                    label: 'On Track', 
+                    bgcolor: 'success.lighter' 
+                  },
+                  'at-risk': { 
+                    icon: <WarningIcon />, 
+                    color: 'warning.main', 
+                    label: 'At Risk', 
+                    bgcolor: 'warning.lighter' 
+                  },
+                  'behind': { 
+                    icon: <ErrorIcon />, 
+                    color: 'error.main', 
+                    label: 'Behind', 
+                    bgcolor: 'error.lighter' 
+                  },
+                };
+                
+                const healthInfo = healthConfig[health];
                 
                 return (
                   <Card key={goal.id} variant="outlined">
                     <CardContent>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                         <Box sx={{ flexGrow: 1 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                             <Typography variant="h6" component="h3">
                               {goal.name}
                             </Typography>
+                            
+                            {/* Health Indicator */}
+                            <Tooltip title={`Goal status: ${healthInfo.label}`}>
+                              <Chip
+                                icon={healthInfo.icon}
+                                label={healthInfo.label}
+                                size="small"
+                                sx={{ 
+                                  bgcolor: healthInfo.bgcolor,
+                                  color: healthInfo.color,
+                                  fontWeight: 600,
+                                  '& .MuiChip-icon': { color: healthInfo.color }
+                                }}
+                              />
+                            </Tooltip>
+                            
                             {daysLeftDisplay && (
                               <Chip
                                 label={daysLeftDisplay.text}
@@ -245,9 +308,39 @@ export default function Dashboard() {
                       <LinearProgress 
                         variant="determinate" 
                         value={Math.min(goal.progress, 100)}
-                        sx={{ height: 8, borderRadius: 4 }}
+                        sx={{ 
+                          height: 8, 
+                          borderRadius: 4,
+                          bgcolor: 'action.hover',
+                          '& .MuiLinearProgress-bar': {
+                            bgcolor: health === 'complete' ? 'success.main' :
+                                    health === 'on-track' ? 'success.main' :
+                                    health === 'at-risk' ? 'warning.main' : 'error.main'
+                          }
+                        }}
                       />
                     </Box>
+
+                    {/* Budget Recommendation */}
+                    {recommendation && health !== 'complete' && (
+                      <Box 
+                        sx={{ 
+                          mb: 2, 
+                          p: 1.5, 
+                          bgcolor: 'info.lighter',
+                          borderRadius: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                        }}
+                      >
+                        <LightbulbIcon sx={{ color: 'info.main', fontSize: 20 }} />
+                        <Typography variant="body2" color="info.dark">
+                          <strong>Budget tip:</strong> Save <strong>R{recommendation.perPerson}</strong> per person/month 
+                          to reach this goal by the deadline ({recommendation.daysLeft} days left)
+                        </Typography>
+                      </Box>
+                    )}
 
                     {/* Family Contributions */}
                     <Box>
@@ -277,6 +370,7 @@ export default function Dashboard() {
                             const isCurrentUser = user.id === state.currentUser?.id;
                             const isTopContributor = total === maxContribution && total > 0;
                             const hasContributed = total > 0;
+                            const streak = calculateStreak(user.id, state.entries);
                             
                             return (
                               <Box
@@ -303,24 +397,53 @@ export default function Dashboard() {
                               >
                                 {/* Trophy badge for top contributor */}
                                 {isTopContributor && (
-                                  <Box
-                                    sx={{
-                                      position: 'absolute',
-                                      top: -8,
-                                      right: -8,
-                                      width: 28,
-                                      height: 28,
-                                      bgcolor: '#FFD700',
-                                      borderRadius: '50%',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      boxShadow: 2,
-                                      zIndex: 1,
-                                    }}
-                                  >
-                                    <TrophyIcon sx={{ fontSize: 16, color: '#000' }} />
-                                  </Box>
+                                  <Tooltip title="Top Contributor! 🏆">
+                                    <Box
+                                      sx={{
+                                        position: 'absolute',
+                                        top: -8,
+                                        right: -8,
+                                        width: 28,
+                                        height: 28,
+                                        bgcolor: '#FFD700',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: 2,
+                                        zIndex: 1,
+                                      }}
+                                    >
+                                      <TrophyIcon sx={{ fontSize: 16, color: '#000' }} />
+                                    </Box>
+                                  </Tooltip>
+                                )}
+                                
+                                {/* Streak badge */}
+                                {streak > 0 && (
+                                  <Tooltip title={`${streak} month streak! Keep it up! 🔥`}>
+                                    <Chip
+                                      icon={<FireIcon />}
+                                      label={streak}
+                                      size="small"
+                                      sx={{
+                                        position: 'absolute',
+                                        top: -8,
+                                        left: -8,
+                                        height: 24,
+                                        minWidth: 40,
+                                        bgcolor: '#FF6B35',
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                        fontSize: '0.75rem',
+                                        zIndex: 1,
+                                        '& .MuiChip-icon': { 
+                                          color: 'white',
+                                          fontSize: 16,
+                                        }
+                                      }}
+                                    />
+                                  </Tooltip>
                                 )}
                                 
                                 {/* Avatar */}

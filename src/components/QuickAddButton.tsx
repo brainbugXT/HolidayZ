@@ -15,9 +15,11 @@ import {
 import { Add as AddIcon } from '@mui/icons-material';
 import { useApp, createEntry } from '../context/AppContext';
 import { entriesService } from '../firebase/firestore';
+import { useToast } from '../context/ToastContext';
 
 export default function QuickAddButton() {
   const { state } = useApp();
+  const { showToast, showMilestone } = useToast();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     goalId: '',
@@ -58,6 +60,12 @@ export default function QuickAddButton() {
     setIsSubmitting(true);
 
     try {
+      // Calculate old progress before adding
+      const goal = state.goals.find(g => g.id === formData.goalId);
+      const oldEntries = state.entries.filter(e => e.goalId === formData.goalId);
+      const oldTotal = oldEntries.reduce((sum, e) => sum + e.amount, 0);
+      const oldProgress = goal ? (oldTotal / goal.targetAmount) * 100 : 0;
+      
       const newEntry = createEntry(
         state.currentUser.id,
         formData.goalId,
@@ -69,7 +77,23 @@ export default function QuickAddButton() {
       const { id, ...entryWithoutId } = newEntry;
       await entriesService.add(entryWithoutId);
       
+      // Calculate new progress and check for milestones
+      if (goal) {
+        const newTotal = oldTotal + parseFloat(formData.amount);
+        const newProgress = (newTotal / goal.targetAmount) * 100;
+        
+        // Check milestone crossings
+        const milestones = [25, 50, 75, 100];
+        for (const milestone of milestones) {
+          if (oldProgress < milestone && newProgress >= milestone) {
+            showMilestone(goal.name, milestone);
+            break; // Only show one milestone at a time
+          }
+        }
+      }
+      
       console.log('✅ Quick entry added to Firestore');
+      showToast('Savings added successfully! 💰', 'success');
       handleClose();
       
       // Show success feedback (you can add a toast notification here)

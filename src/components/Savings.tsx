@@ -23,9 +23,11 @@ import {
 } from '@mui/icons-material';
 import { useApp, createEntry } from '../context/AppContext';
 import { entriesService } from '../firebase/firestore';
+import { useToast } from '../context/ToastContext';
 
 export default function Savings() {
   const { state } = useApp();
+  const { showToast, showMilestone } = useToast();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -82,8 +84,15 @@ export default function Savings() {
           };
           await entriesService.update(editingEntry, updatedEntry);
           console.log('✅ Entry updated in Firestore');
+          showToast('Savings entry updated successfully!', 'success');
         }
       } else {
+        // Calculate old progress before adding
+        const goal = state.goals.find(g => g.id === formData.goalId);
+        const oldEntries = state.entries.filter(e => e.goalId === formData.goalId);
+        const oldTotal = oldEntries.reduce((sum, e) => sum + e.amount, 0);
+        const oldProgress = goal ? (oldTotal / goal.targetAmount) * 100 : 0;
+        
         // Create new entry in Firestore
         const newEntry = createEntry(
           state.currentUser.id,
@@ -94,7 +103,24 @@ export default function Savings() {
         );
         const { id, ...entryWithoutId } = newEntry;
         await entriesService.add(entryWithoutId);
+        
+        // Calculate new progress and check for milestones
+        if (goal) {
+          const newTotal = oldTotal + parseFloat(formData.amount);
+          const newProgress = (newTotal / goal.targetAmount) * 100;
+          
+          // Check milestone crossings
+          const milestones = [25, 50, 75, 100];
+          for (const milestone of milestones) {
+            if (oldProgress < milestone && newProgress >= milestone) {
+              showMilestone(goal.name, milestone);
+              break; // Only show one milestone at a time
+            }
+          }
+        }
+        
         console.log('✅ Entry added to Firestore');
+        showToast('Savings added successfully! 💰', 'success');
       }
       
       resetForm();
