@@ -9,7 +9,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "vite preview --host 0.0.0.0 --port 8080"
+    "start": "vite preview --host 0.0.0.0 --port 8080",
+    "generate-icons": "echo 'Choose: ./scripts/generate-icons.sh (ImageMagick) or python3 ./scripts/generate-icons.py (Python+cairosvg)'"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

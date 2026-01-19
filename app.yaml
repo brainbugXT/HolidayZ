@@ -35,13 +35,23 @@ readiness_check:
 # Static file handling - optimized for cache busting
 handlers:
 # Serve favicon and other root-level static files (favicon.svg, manifest.json, etc.)
-- url: /(favicon\.svg|manifest\.json|vite\.svg)
+- url: /(favicon\.svg|manifest\.json|vite\.svg|icon-.*\.png|apple-touch-icon\.png|screenshot-.*\.png)
   static_files: dist/\1
-  upload: dist/(favicon\.svg|manifest\.json|vite\.svg)
+  upload: dist/(favicon\.svg|manifest\.json|vite\.svg|icon-.*\.png|apple-touch-icon\.png|screenshot-.*\.png)
   secure: always
   expiration: "7d"
   http_headers:
     Cache-Control: "public, max-age=604800"
+
+# Service Worker - should NOT be cached heavily
+- url: /service-worker.js
+  static_files: dist/service-worker.js
+  upload: dist/service-worker.js
+  secure: always
+  expiration: "0s"
+  http_headers:
+    Cache-Control: "no-cache, must-revalidate, max-age=0"
+    Service-Worker-Allowed: "/"
 
 # Cache hashed assets (with version in filename) for a year
 # Vite adds hashes to filenames, so these are safe to cache forever

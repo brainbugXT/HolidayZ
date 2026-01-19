@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="coinGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FCD34D;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FBBF24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded square background -->
+  <rect width="128" height="128" rx="24" fill="url(#bgGradient)"/>
+  
+  <!-- Main coin stack (3 coins) -->
+  <!-- Bottom coin -->
+  <ellipse cx="64" cy="84" rx="26" ry="8" fill="#D97706"/>
+  <ellipse cx="64" cy="82" rx="26" ry="8" fill="url(#coinGradient)"/>
+  
+  <!-- Middle coin -->
+  <ellipse cx="64" cy="68" rx="26" ry="8" fill="#D97706"/>
+  <ellipse cx="64" cy="66" rx="26" ry="8" fill="url(#coinGradient)"/>
+  
+  <!-- Top coin -->
+  <ellipse cx="64" cy="52" rx="26" ry="8" fill="#D97706"/>
+  <ellipse cx="64" cy="50" rx="26" ry="8" fill="url(#coinGradient)"/>
+  
+  <!-- Dollar sign on top coin -->
+  <text x="64" y="56" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#7C2D12" text-anchor="middle" dominant-baseline="middle">$</text>
+  
+  <!-- Sparkle effect (top left) -->
+  <circle cx="32" cy="32" r="3" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="32" cy="32" r="1.5" fill="#FFFFFF"/>
+  
+  <!-- Sparkle effect (top right) -->
+  <circle cx="96" cy="28" r="2.5" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="96" cy="28" r="1" fill="#FFFFFF"/>
+  
+  <!-- Small accent sparkle -->
+  <circle cx="48" cy="36" r="2" fill="#FFFFFF" opacity="0.7"/>
+</svg>
