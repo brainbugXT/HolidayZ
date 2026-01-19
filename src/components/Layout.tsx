@@ -11,6 +11,8 @@ import {
   Avatar,
   useTheme,
   useMediaQuery,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import {
   Home as HomeIcon,
@@ -18,8 +20,11 @@ import {
   AccountBalance as CurrencyDollarIcon,
   Logout as LogoutIcon,
   AccountCircle as UserCircleIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
+import { useThemeMode } from '../context/ThemeContext';
 
 interface LayoutProps {
   children: ReactNode;
@@ -29,6 +34,7 @@ interface LayoutProps {
 
 export default function Layout({ children, currentPage, onNavigate }: LayoutProps) {
   const { state, dispatch } = useApp();
+  const { mode, toggleTheme } = useThemeMode();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -45,7 +51,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
   const currentTabIndex = navigation.findIndex(item => item.page === currentPage);
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       {/* Navigation */}
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
@@ -72,7 +78,14 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
 
           <Box sx={{ flexGrow: isMobile ? 1 : 0 }} />
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Dark Mode Toggle */}
+            <Tooltip title={mode === 'dark' ? 'Light mode' : 'Dark mode'}>
+              <IconButton onClick={toggleTheme} color="inherit">
+                {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+              </IconButton>
+            </Tooltip>
+
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Avatar sx={{ width: 32, height: 32, bgcolor: 'grey.400' }}>
                 <UserCircleIcon />

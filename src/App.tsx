@@ -1,27 +1,18 @@
 import { useState } from 'react';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { AppProvider, useApp } from './context/AppContext';
+import { ThemeModeProvider } from './context/ThemeContext';
+import { ToastProvider } from './context/ToastContext';
 import AuthPage from './components/AuthPage';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Goals from './components/Goals';
 import Savings from './components/Savings';
 import FirebaseSetupWizard from './components/FirebaseSetupWizard';
+import QuickAddButton from './components/QuickAddButton';
 import { envDebug } from './debug-env';
 
 // Declare build time constant
 declare const __BUILD_TIME__: string;
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#2563eb',
-    },
-    secondary: {
-      main: '#16a34a',
-    },
-  },
-});
 
 // Log build info on app load
 if (typeof __BUILD_TIME__ !== 'undefined') {
@@ -58,18 +49,20 @@ function AppContent() {
       <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
         {renderPage()}
       </Layout>
+      <QuickAddButton />
     </>
   );
 }
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AppProvider>
-        <AppContent />
-      </AppProvider>
-    </ThemeProvider>
+    <ThemeModeProvider>
+      <ToastProvider>
+        <AppProvider>
+          <AppContent />
+        </AppProvider>
+      </ToastProvider>
+    </ThemeModeProvider>
   );
 }
 
