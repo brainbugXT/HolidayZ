@@ -49,15 +49,26 @@ export default function SavingsVelocityChart({
   const secondHalf = chartData.slice(Math.ceil(chartData.length / 2));
   const firstHalfAvg = firstHalf.reduce((sum, item) => sum + item.total, 0) / (firstHalf.length || 1);
   const secondHalfAvg = secondHalf.reduce((sum, item) => sum + item.total, 0) / (secondHalf.length || 1);
-  const trend = secondHalfAvg > firstHalfAvg ? 'up' : secondHalfAvg < firstHalfAvg ? 'down' : 'stable';
+  
+  // Determine trend (only if there's meaningful data)
+  let trend: 'up' | 'down' | 'stable' | 'no-data' = 'stable';
+  if (firstHalfAvg === 0 && secondHalfAvg === 0) {
+    trend = 'no-data';
+  } else if (secondHalfAvg > firstHalfAvg) {
+    trend = 'up';
+  } else if (secondHalfAvg < firstHalfAvg) {
+    trend = 'down';
+  }
+  
   const trendPercentage = firstHalfAvg > 0 
     ? Math.abs(((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100).toFixed(1)
-    : 0;
+    : '0.0';
 
   const trendMessages = {
     up: `📈 Trending up ${trendPercentage}%! Keep up the great work!`,
     down: `📉 Down ${trendPercentage}% from earlier. Time to boost savings!`,
     stable: '➡️ Steady savings rate. Consistency is key!',
+    'no-data': '📊 Start saving to see your trends!',
   };
 
   const chartColor = theme.palette.mode === 'dark' ? '#7C3AED' : '#4F46E5';
@@ -189,7 +200,10 @@ export default function SavingsVelocityChart({
           sx={{ 
             mt: 2, 
             p: 1.5, 
-            bgcolor: trend === 'up' ? 'success.lighter' : trend === 'down' ? 'warning.lighter' : 'info.lighter',
+            bgcolor: trend === 'up' ? 'success.lighter' : 
+                     trend === 'down' ? 'warning.lighter' : 
+                     trend === 'no-data' ? 'grey.100' : 
+                     'info.lighter',
             borderRadius: 2,
             textAlign: 'center',
           }}
@@ -197,7 +211,10 @@ export default function SavingsVelocityChart({
           <Typography 
             variant="body2" 
             fontWeight="600"
-            color={trend === 'up' ? 'success.dark' : trend === 'down' ? 'warning.dark' : 'info.dark'}
+            color={trend === 'up' ? 'success.dark' : 
+                   trend === 'down' ? 'warning.dark' : 
+                   trend === 'no-data' ? 'text.secondary' : 
+                   'info.dark'}
           >
             {trendMessages[trend]}
           </Typography>
