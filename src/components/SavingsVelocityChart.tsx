@@ -51,24 +51,28 @@ export default function SavingsVelocityChart({
   const secondHalfAvg = secondHalf.reduce((sum, item) => sum + item.total, 0) / (secondHalf.length || 1);
   
   // Determine trend (only if there's meaningful data)
-  let trend: 'up' | 'down' | 'stable' | 'no-data' = 'stable';
+  let trend: 'up' | 'down' | 'stable' | 'no-data' | 'new-start' = 'stable';
+  let trendPercentage = '0.0';
+  
   if (firstHalfAvg === 0 && secondHalfAvg === 0) {
     trend = 'no-data';
+  } else if (firstHalfAvg === 0 && secondHalfAvg > 0) {
+    // Starting from zero - can't calculate percentage
+    trend = 'new-start';
   } else if (secondHalfAvg > firstHalfAvg) {
     trend = 'up';
+    trendPercentage = Math.abs(((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100).toFixed(1);
   } else if (secondHalfAvg < firstHalfAvg) {
     trend = 'down';
+    trendPercentage = Math.abs(((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100).toFixed(1);
   }
-  
-  const trendPercentage = firstHalfAvg > 0 
-    ? Math.abs(((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100).toFixed(1)
-    : '0.0';
 
   const trendMessages = {
     up: `📈 Trending up ${trendPercentage}%! Keep up the great work!`,
     down: `📉 Down ${trendPercentage}% from earlier. Time to boost savings!`,
     stable: '➡️ Steady savings rate. Consistency is key!',
     'no-data': '📊 Start saving to see your trends!',
+    'new-start': '🚀 Great start! You\'re building momentum!',
   };
 
   const chartColor = theme.palette.mode === 'dark' ? '#7C3AED' : '#4F46E5';
@@ -203,6 +207,7 @@ export default function SavingsVelocityChart({
             bgcolor: trend === 'up' ? 'success.lighter' : 
                      trend === 'down' ? 'warning.lighter' : 
                      trend === 'no-data' ? 'grey.100' : 
+                     trend === 'new-start' ? 'primary.lighter' :
                      'info.lighter',
             borderRadius: 2,
             textAlign: 'center',
@@ -214,6 +219,7 @@ export default function SavingsVelocityChart({
             color={trend === 'up' ? 'success.dark' : 
                    trend === 'down' ? 'warning.dark' : 
                    trend === 'no-data' ? 'text.secondary' : 
+                   trend === 'new-start' ? 'primary.dark' :
                    'info.dark'}
           >
             {trendMessages[trend]}
