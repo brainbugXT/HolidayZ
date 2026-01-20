@@ -255,10 +255,10 @@ export default function PersonalStatsDialog({ open, onClose, userId }: PersonalS
                 size="small"
               />
             )}
-            {stats.streak >= 3 && (
+            {stats.streak >= 2 && (
               <Chip 
                 icon={<FireIcon />}
-                label="3-Month Streak"
+                label="2-Month Streak"
                 color="error"
                 size="small"
               />

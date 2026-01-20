@@ -296,7 +296,7 @@ export default function Dashboard() {
                         >
                           {getUserInitials(user.name)}
                         </Avatar>
-                        {streak >= 3 && (
+                        {streak >= 2 && (
                           <Tooltip title={`${streak} month streak!`}>
                             <Box
                               sx={{
@@ -330,7 +330,7 @@ export default function Dashboard() {
                         <Typography variant="h6" fontWeight="bold" color="primary">
                           R{totalContributed.toFixed(2)}
                         </Typography>
-                        {streak >= 3 && (
+                        {streak >= 2 && (
                           <Chip
                             icon={<FireIcon />}
                             label={`${streak} months`}
@@ -587,7 +587,7 @@ export default function Dashboard() {
                                 )}
                                 
                                 {/* Streak badge */}
-                                {streak > 0 && (
+                                {streak >= 2 && (
                                   <Tooltip title={`${streak} month streak! Keep it up! 🔥`}>
                                     <Chip
                                       icon={<FireIcon />}
