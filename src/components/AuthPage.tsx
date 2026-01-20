@@ -12,21 +12,32 @@ import {
   Container,
   Alert,
   Chip,
+  useTheme,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { 
   GetApp as GetAppIcon,
-  CheckCircle as CheckCircleIcon 
+  CheckCircle as CheckCircleIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import { usePWAInstall } from '../hooks/usePWAInstall';
+import { useThemeMode } from '../context/ThemeContext';
 
 export default function AuthPage() {
   const { state, dispatch } = useApp();
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const { isInstallable, isInstalled, handleInstallClick } = usePWAInstall();
+  const theme = useTheme();
+  const { toggleTheme } = useThemeMode();
+  const isDark = theme.palette.mode === 'dark';
 
-  const handleLogin = () => {
-    const user = state.users.find(u => u.id === selectedUserId);
+  const handleUserSelect = (userId: string) => {
+    setSelectedUserId(userId);
+    // Automatically login when user is selected
+    const user = state.users.find(u => u.id === userId);
     if (user) {
       dispatch({ type: 'SET_CURRENT_USER', payload: user });
     }
@@ -36,13 +47,40 @@ export default function AuthPage() {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+        background: isDark 
+          ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'
+          : 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         p: 2,
+        position: 'relative',
       }}
     >
+      {/* Theme Toggle Button */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 16,
+          right: 16,
+        }}
+      >
+        <Tooltip title={isDark ? 'Light mode' : 'Dark mode'}>
+          <IconButton 
+            onClick={toggleTheme}
+            sx={{
+              bgcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+              color: isDark ? 'white' : 'inherit',
+              '&:hover': {
+                bgcolor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+              },
+            }}
+          >
+            {isDark ? <LightModeIcon /> : <DarkModeIcon />}
+          </IconButton>
+        </Tooltip>
+      </Box>
+
       <Container maxWidth="sm">
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           {/* App Logo/Icon */}
@@ -101,10 +139,23 @@ export default function AuthPage() {
           >
             HolidayZ
           </Typography>
-          <Typography variant="h6" color="text.secondary" gutterBottom>
+          <Typography 
+            variant="h6" 
+            gutterBottom
+            sx={{ 
+              color: isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)',
+              fontWeight: 500,
+            }}
+          >
             Family Savings Tracker
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              mt: 2,
+              color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
+            }}
+          >
             Select your family member profile to continue
           </Typography>
 
@@ -149,14 +200,14 @@ export default function AuthPage() {
 
         <Card elevation={3}>
           <CardContent sx={{ p: 4 }}>
-            <FormControl fullWidth sx={{ mb: 3 }}>
+            <FormControl fullWidth>
               <InputLabel id="user-select-label">Choose Family Member</InputLabel>
               <Select
                 labelId="user-select-label"
                 id="user-select"
                 value={selectedUserId}
                 label="Choose Family Member"
-                onChange={(e) => setSelectedUserId(e.target.value)}
+                onChange={(e) => handleUserSelect(e.target.value)}
               >
                 {state.users.map((user) => (
                   <MenuItem key={user.id} value={user.id}>
@@ -166,18 +217,7 @@ export default function AuthPage() {
               </Select>
             </FormControl>
 
-            <Button
-              onClick={handleLogin}
-              disabled={!selectedUserId}
-              variant="contained"
-              fullWidth
-              size="large"
-              sx={{ mb: 2 }}
-            >
-              Continue to Dashboard
-            </Button>
-
-            {/* Alternative Install Button in Card */}
+            {/* Install Button in Card */}
             {isInstallable && (
               <Button
                 onClick={handleInstallClick}
@@ -186,6 +226,7 @@ export default function AuthPage() {
                 size="large"
                 startIcon={<GetAppIcon />}
                 sx={{
+                  mt: 3,
                   borderColor: '#4F46E5',
                   color: '#4F46E5',
                   '&:hover': {
