@@ -124,7 +124,7 @@ export default function GoalHealthDashboard() {
       {/* Alerts for goals needing attention */}
       {needsAttention.length > 0 && (
         <Alert severity="warning" sx={{ mb: 4 }}>
-          <AlertTitle>⚠️ {needsAttention.length} Goal{needsAttention.length > 1 ? 's' : ''} Need Attention</AlertTitle>
+          <AlertTitle>{needsAttention.length} Goal{needsAttention.length > 1 ? 's' : ''} Need Attention</AlertTitle>
           These goals are at risk or behind schedule. Review the forecasts below and consider increasing contributions.
         </Alert>
       )}
