@@ -521,7 +521,7 @@ export default function Dashboard() {
                             xs: 'repeat(2, 1fr)',
                             md: 'repeat(4, 1fr)',
                           },
-                          gap: 1,
+                          gap: 2,
                         }}
                       >
                         {(() => {
@@ -568,8 +568,8 @@ export default function Dashboard() {
                                     <Box
                                       sx={{
                                         position: 'absolute',
-                                        top: -8,
-                                        right: -8,
+                                        top: -6,
+                                        right: -6,
                                         width: 28,
                                         height: 28,
                                         bgcolor: '#FFD700',
@@ -595,8 +595,8 @@ export default function Dashboard() {
                                       size="small"
                                       sx={{
                                         position: 'absolute',
-                                        top: -8,
-                                        left: -8,
+                                        top: -6,
+                                        left: -6,
                                         height: 24,
                                         minWidth: 40,
                                         bgcolor: '#FF6B35',
