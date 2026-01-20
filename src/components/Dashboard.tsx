@@ -586,33 +586,6 @@ export default function Dashboard() {
                                   </Tooltip>
                                 )}
                                 
-                                {/* Streak badge */}
-                                {streak >= 2 && (
-                                  <Tooltip title={`${streak} month streak! Keep it up! 🔥`}>
-                                    <Chip
-                                      icon={<FireIcon />}
-                                      label={streak}
-                                      size="small"
-                                      sx={{
-                                        position: 'absolute',
-                                        top: -6,
-                                        left: -6,
-                                        height: 24,
-                                        minWidth: 40,
-                                        bgcolor: '#FF6B35',
-                                        color: 'white',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.75rem',
-                                        zIndex: 1,
-                                        '& .MuiChip-icon': { 
-                                          color: 'white',
-                                          fontSize: 16,
-                                        }
-                                      }}
-                                    />
-                                  </Tooltip>
-                                )}
-                                
                                 {/* Avatar */}
                                 <Avatar
                                   src={getAvatarUrl(user.name, user.email, 64)}
@@ -659,6 +632,38 @@ export default function Dashboard() {
                                 >
                                   {hasContributed ? `$${total.toFixed(2)}` : 'Not yet'}
                                 </Typography>
+                                
+                                {/* Streak badge at bottom */}
+                                {streak >= 2 && (
+                                  <Tooltip title={`${streak} month streak! Keep it up! 🔥`}>
+                                    <Chip
+                                      icon={<FireIcon />}
+                                      label={streak}
+                                      size="small"
+                                      sx={{
+                                        position: 'absolute',
+                                        bottom: -8,
+                                        left: '50%',
+                                        transform: 'translateX(-50%)',
+                                        height: 22,
+                                        minWidth: 40,
+                                        bgcolor: '#FF6B35',
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                        fontSize: '0.7rem',
+                                        zIndex: 1,
+                                        boxShadow: 2,
+                                        '& .MuiChip-icon': { 
+                                          color: 'white',
+                                          fontSize: 14,
+                                        },
+                                        '& .MuiChip-label': {
+                                          px: 0.75,
+                                        }
+                                      }}
+                                    />
+                                  </Tooltip>
+                                )}
                               </Box>
                             );
                           });
