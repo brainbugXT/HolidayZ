@@ -47,7 +47,7 @@ export default function YearInReviewDialog({ open, onClose, year }: YearInReview
     );
   }
 
-  const formatCurrency = (amount: number) => `R${amount.toFixed(2)}`;
+  const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-ZA', {
       year: 'numeric',

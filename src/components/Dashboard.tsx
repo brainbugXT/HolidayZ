@@ -328,7 +328,7 @@ export default function Dashboard() {
                       </Box>
                       <Box sx={{ textAlign: 'right' }}>
                         <Typography variant="h6" fontWeight="bold" color="primary">
-                          R{totalContributed.toFixed(2)}
+                          ${totalContributed.toFixed(2)}
                         </Typography>
                         {streak >= 2 && (
                           <Chip
@@ -503,7 +503,7 @@ export default function Dashboard() {
                       >
                         <LightbulbIcon sx={{ color: 'info.main', fontSize: 20 }} />
                         <Typography variant="body2" color="info.dark">
-                          <strong>Budget tip:</strong> Save <strong>R{recommendation.perPerson}</strong> per person/month 
+                          <strong>Budget tip:</strong> Save <strong>${recommendation.perPerson}</strong> per person/month 
                           to reach this goal by the deadline ({recommendation.daysLeft} days left)
                         </Typography>
                       </Box>

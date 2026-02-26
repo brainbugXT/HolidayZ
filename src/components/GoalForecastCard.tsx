@@ -100,7 +100,7 @@ export default function GoalForecastCard({ goal, totalSaved, entries }: GoalFore
               Progress
             </Typography>
             <Typography variant="body2" fontWeight="600">
-              R{totalSaved.toFixed(2)} / R{goal.targetAmount.toFixed(2)}
+              ${totalSaved.toFixed(2)} / ${goal.targetAmount.toFixed(2)}
             </Typography>
           </Box>
           <LinearProgress 
@@ -132,7 +132,7 @@ export default function GoalForecastCard({ goal, totalSaved, entries }: GoalFore
                 Current Monthly Rate
               </Typography>
               <Typography variant="body1" fontWeight="600">
-                R{monthlyRate.toFixed(2)}/month
+                ${monthlyRate.toFixed(2)}/month
               </Typography>
             </Box>
           </Box>
@@ -187,7 +187,7 @@ export default function GoalForecastCard({ goal, totalSaved, entries }: GoalFore
                 💡 Recommended Action
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Increase monthly contributions to R{((goal.targetAmount - totalSaved) / (daysLeft / 30)).toFixed(2)} to meet your deadline.
+                Increase monthly contributions to ${((goal.targetAmount - totalSaved) / (daysLeft / 30)).toFixed(2)} to meet your deadline.
               </Typography>
             </Box>
           )}

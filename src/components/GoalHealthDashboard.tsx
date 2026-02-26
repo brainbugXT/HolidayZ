@@ -194,7 +194,7 @@ export default function GoalHealthDashboard() {
                       Target
                     </Typography>
                     <Typography variant="body2" fontWeight="600">
-                      R{goal.targetAmount.toFixed(2)}
+                      ${goal.targetAmount.toFixed(2)}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -202,7 +202,7 @@ export default function GoalHealthDashboard() {
                       Saved
                     </Typography>
                     <Typography variant="body2" fontWeight="600" color="success.main">
-                      R{goal.totalSaved.toFixed(2)}
+                      ${goal.totalSaved.toFixed(2)}
                     </Typography>
                   </Box>
                   {goal.totalSaved > goal.targetAmount && (

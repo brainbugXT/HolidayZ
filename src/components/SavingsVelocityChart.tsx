@@ -103,7 +103,7 @@ export default function SavingsVelocityChart({
                 <YAxis 
                   tick={{ fill: textColor, fontSize: 12 }}
                   stroke={gridColor}
-                  tickFormatter={(value) => `R${value}`}
+                  tickFormatter={(value) => `$${value}`}
                 />
                 <Tooltip 
                   contentStyle={{
@@ -111,7 +111,7 @@ export default function SavingsVelocityChart({
                     border: `1px solid ${gridColor}`,
                     borderRadius: 8,
                   }}
-                  formatter={(value: number | undefined) => value ? [`R${value.toFixed(2)}`, 'Saved'] : ['R0', 'Saved']}
+                  formatter={(value: number | undefined) => value ? [`$${value.toFixed(2)}`, 'Saved'] : ['$0', 'Saved']}
                 />
                 <Legend />
                 <Line 
@@ -135,7 +135,7 @@ export default function SavingsVelocityChart({
                 <YAxis 
                   tick={{ fill: textColor, fontSize: 12 }}
                   stroke={gridColor}
-                  tickFormatter={(value) => `R${value}`}
+                  tickFormatter={(value) => `$${value}`}
                 />
                 <Tooltip 
                   contentStyle={{
@@ -143,7 +143,7 @@ export default function SavingsVelocityChart({
                     border: `1px solid ${gridColor}`,
                     borderRadius: 8,
                   }}
-                  formatter={(value: number | undefined) => value ? [`R${value.toFixed(2)}`, 'Saved'] : ['R0', 'Saved']}
+                  formatter={(value: number | undefined) => value ? [`$${value.toFixed(2)}`, 'Saved'] : ['$0', 'Saved']}
                 />
                 <Legend />
                 <Bar 
@@ -173,7 +173,7 @@ export default function SavingsVelocityChart({
               Total ({months} months)
             </Typography>
             <Typography variant="h6" fontWeight="bold" color="primary">
-              R{totalSaved.toFixed(2)}
+              ${totalSaved.toFixed(2)}
             </Typography>
           </Box>
           
@@ -182,7 +182,7 @@ export default function SavingsVelocityChart({
               Monthly Average
             </Typography>
             <Typography variant="h6" fontWeight="bold" color="success.main">
-              R{averageMonthlySavings.toFixed(2)}
+              ${averageMonthlySavings.toFixed(2)}
             </Typography>
           </Box>
           
@@ -191,7 +191,7 @@ export default function SavingsVelocityChart({
               Best Month
             </Typography>
             <Typography variant="h6" fontWeight="bold" color="warning.main">
-              R{highestMonth.total.toFixed(2)}
+              ${highestMonth.total.toFixed(2)}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {highestMonth.month}

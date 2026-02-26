@@ -102,7 +102,7 @@ export default function PersonalStatsDialog({ open, onClose, userId }: PersonalS
             <CardContent sx={{ textAlign: 'center', py: 2 }}>
               <MoneyIcon sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
               <Typography variant="h6" fontWeight="bold" color="primary">
-                R{stats.totalContributed.toFixed(2)}
+                ${stats.totalContributed.toFixed(2)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Total Saved
@@ -114,7 +114,7 @@ export default function PersonalStatsDialog({ open, onClose, userId }: PersonalS
             <CardContent sx={{ textAlign: 'center', py: 2 }}>
               <TrendingUp sx={{ fontSize: 32, color: 'success.main', mb: 1 }} />
               <Typography variant="h6" fontWeight="bold" color="success.main">
-                R{stats.avgMonthly.toFixed(2)}
+                ${stats.avgMonthly.toFixed(2)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Monthly Avg
@@ -171,7 +171,7 @@ export default function PersonalStatsDialog({ open, onClose, userId }: PersonalS
                     Largest Single Contribution
                   </Typography>
                   <Typography variant="body2" fontWeight="600" color="primary">
-                    R{stats.largestContribution.toFixed(2)}
+                    ${stats.largestContribution.toFixed(2)}
                   </Typography>
                 </Box>
               </Box>
@@ -215,7 +215,7 @@ export default function PersonalStatsDialog({ open, onClose, userId }: PersonalS
                   color="info"
                 />
                 <Chip 
-                  label={`R${favoriteGoal.total.toFixed(2)} total`}
+                  label={`$${favoriteGoal.total.toFixed(2)} total`}
                   size="small"
                   color="info"
                   variant="outlined"
@@ -234,7 +234,7 @@ export default function PersonalStatsDialog({ open, onClose, userId }: PersonalS
             {stats.totalContributed >= 1000 && (
               <Chip 
                 icon={<TrophyIcon />}
-                label="R1,000 Club"
+                label="$1,000 Club"
                 color="warning"
                 size="small"
               />
@@ -242,7 +242,7 @@ export default function PersonalStatsDialog({ open, onClose, userId }: PersonalS
             {stats.totalContributed >= 5000 && (
               <Chip 
                 icon={<TrophyIcon />}
-                label="R5,000 Club"
+                label="$5,000 Club"
                 color="warning"
                 size="small"
               />
@@ -250,7 +250,7 @@ export default function PersonalStatsDialog({ open, onClose, userId }: PersonalS
             {stats.totalContributed >= 10000 && (
               <Chip 
                 icon={<TrophyIcon />}
-                label="R10,000 Club"
+                label="$10,000 Club"
                 color="error"
                 size="small"
               />
