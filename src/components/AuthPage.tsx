@@ -100,7 +100,6 @@ export default function AuthPage() {
               sx={{
                 width: { xs: 100, sm: 120 },
                 height: { xs: 100, sm: 120 },
-                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                 borderRadius: '24px',
                 display: 'flex',
                 alignItems: 'center',
@@ -114,12 +113,12 @@ export default function AuthPage() {
               }}
             >
               <img 
-                src="/favicon.svg" 
+                src="/icon-192.png" 
                 alt="HolidayZ Logo" 
                 style={{ 
                   width: '100%', 
                   height: '100%',
-                  padding: '0px',
+                  borderRadius: '24px',
                 }} 
               />
             </Box>

@@ -1,9 +1,11 @@
 // Service Worker for HolidayZ PWA
-const CACHE_NAME = 'holidayz-v1';
+const CACHE_NAME = 'holidayz-v2';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/favicon.svg',
+  '/favicon.png',
+  '/icon-192.png',
+  '/icon-512.png',
   '/manifest.json'
 ];
 
