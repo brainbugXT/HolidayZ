@@ -1,82 +1,94 @@
 #!/usr/bin/env python3
 """
-Generate PWA icons from SVG using Python
-Requires: pip install cairosvg pillow
+Generate PWA icons from HolidayZ source image
+Creates all required icon sizes for PWA, favicon, and app icons
+Requires: pip install pillow (usually pre-installed)
 """
 
 import os
+import sys
 from pathlib import Path
 
 try:
-    import cairosvg
     from PIL import Image
-    from io import BytesIO
 except ImportError:
-    print("❌ Required packages not installed!")
-    print("📦 Install with: pip3 install cairosvg pillow")
-    exit(1)
+    print("❌ Pillow not installed!")
+    print("📦 Install with: pip3 install pillow")
+    sys.exit(1)
 
 # Get paths
 script_dir = Path(__file__).parent
 public_dir = script_dir.parent / 'public'
-svg_path = public_dir / 'favicon.svg'
+source_path = public_dir / 'holidayz-icon-source.png'
 
-def generate_icon(size, output_name, padding=0):
-    """Generate a PNG icon from SVG"""
+# Icon sizes to generate
+SIZES = [
+    ('favicon-16x16.png', 16, False),
+    ('favicon-32x32.png', 32, False),
+    ('favicon.png', 32, False),  # Fallback favicon
+    ('icon-192.png', 192, False),
+    ('icon-512.png', 512, False),
+    ('icon-maskable-192.png', 192, True),  # 10% padding for maskable
+    ('icon-maskable-512.png', 512, True),  # 10% padding for maskable
+    ('apple-touch-icon.png', 180, False),
+]
+
+def generate_icon(source, size, output_name, is_maskable=False):
+    """Generate a PNG icon from source image"""
     print(f"📱 Creating {output_name} ({size}x{size})...")
     
-    # Calculate actual size with padding
-    actual_size = int(size * (1 - padding * 2))
-    offset = int(size * padding)
-    
-    # Convert SVG to PNG
-    png_data = cairosvg.svg2png(
-        url=str(svg_path),
-        output_width=actual_size,
-        output_height=actual_size
-    )
-    
-    # Open as PIL Image
-    img = Image.open(BytesIO(png_data))
-    
-    # Create final image with padding if needed
-    if padding > 0:
-        final_img = Image.new('RGBA', (size, size), (255, 255, 255, 255))
-        final_img.paste(img, (offset, offset), img)
+    if is_maskable:
+        # Create maskable icon with white background and 10% padding
+        padding = int(size * 0.1)
+        icon_size = size - (2 * padding)
+        
+        # Create white background
+        background = Image.new('RGBA', (size, size), (255, 255, 255, 255))
+        
+        # Resize source to fit with padding
+        resized = source.resize((icon_size, icon_size), Image.Resampling.LANCZOS)
+        
+        # Paste icon onto background
+        background.paste(resized, (padding, padding), resized)
+        final_img = background
     else:
-        final_img = img
+        # Regular icon with transparency
+        final_img = source.resize((size, size), Image.Resampling.LANCZOS)
     
     # Save
     output_path = public_dir / output_name
-    final_img.save(output_path, 'PNG')
-    print(f"✅ Created {output_name}")
+    final_img.save(output_path, 'PNG', optimize=True)
+    
+    # Show file size
+    size_kb = output_path.stat().st_size / 1024
+    print(f"✅ Created {output_name} ({size_kb:.1f} KB)")
 
 def main():
-    print("🎨 Generating PWA icons from favicon.svg...")
+    print("🎨 Generating PWA icons from holidayz-icon-source.png...")
     
-    if not svg_path.exists():
-        print(f"❌ SVG file not found: {svg_path}")
-        exit(1)
+    if not source_path.exists():
+        print(f"❌ Source file not found: {source_path}")
+        print("💡 Please save your icon as: public/holidayz-icon-source.png")
+        sys.exit(1)
+    
+    # Load source image
+    source = Image.open(source_path)
+    print(f"✅ Loaded source image: {source.size[0]}x{source.size[1]}")
+    
+    # Ensure source has alpha channel
+    if source.mode != 'RGBA':
+        source = source.convert('RGBA')
     
     # Generate all required icons
-    icons = [
-        (192, 'icon-192.png', 0),
-        (512, 'icon-512.png', 0),
-        (192, 'icon-maskable-192.png', 0.1),
-        (512, 'icon-maskable-512.png', 0.1),
-        (180, 'apple-touch-icon.png', 0),
-    ]
-    
-    for size, name, padding in icons:
-        generate_icon(size, name, padding)
+    for filename, size, is_maskable in SIZES:
+        generate_icon(source, size, filename, is_maskable)
     
     print("\n✨ All icons generated successfully!")
-    print("\n📋 Generated files:")
-    for _, name, _ in icons:
-        file_path = public_dir / name
-        if file_path.exists():
-            size_kb = file_path.stat().st_size / 1024
-            print(f"   {name} - {size_kb:.1f} KB")
+    print("\n📦 Generated files:")
+    print("  - favicon-16x16.png, favicon-32x32.png, favicon.png")
+    print("  - icon-192.png, icon-512.png (PWA icons)")
+    print("  - icon-maskable-192.png, icon-maskable-512.png (Maskable PWA icons)")
+    print("  - apple-touch-icon.png (Apple devices)")
 
 if __name__ == '__main__':
     main()
