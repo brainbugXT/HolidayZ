@@ -180,7 +180,7 @@ export default function QuickAddButton() {
                 required
                 fullWidth
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">R</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
                 }}
                 inputProps={{
                   min: 0,
